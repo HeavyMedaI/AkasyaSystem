@@ -4,7 +4,7 @@ namespace System\Config;
 
 class Config{
 
-    public static $private = TRUE;
+    public static $private = FALSE;
 
 }
 

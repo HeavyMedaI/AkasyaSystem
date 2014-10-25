@@ -55,13 +55,29 @@ class Request {
 
     }
 
+    public static function login($Path = NULL){
+
+        $Path = ($Path) ? $Path : Request::get("path");
+
+        Response::render(array(), $Path."/login/panel");
+
+        exit;
+
+    }
+
     public static function module($Module = NULL){
 
-        /*$FireWall =  new Engines\FireWall;
+        $FireWall =  new Engines\FireWall;
 
-        if(Config\Config::$private){
+        $Conf = new Engines\Config;
 
+        $Config = $Conf->load("Modules/".Request::get("path")."/".Request::get("module")."/config.yml");
 
+        /*if($Conf->isPrivate()){
+
+            Request::login(Request::get("path"));
+
+            return FALSE;
 
         }*/
 
@@ -73,10 +89,16 @@ class Request {
 
             $Module[1] = ($Module[1]) ? $Module[1] : "index";
 
-            Response::render(
-                $LoadModule->$Module[1](),
-                Request::get("path")."/".Request::get("module")."/".Request::get("command")
-            );
+            $Render = $LoadModule->$Module[1]();
+
+            if($Render){
+
+                Response::render(
+                    $Render,
+                    Request::get("path")."/".Request::get("module")."/".Request::get("command")
+                );
+
+            }
 
             return TRUE;
 
@@ -88,10 +110,16 @@ class Request {
 
         $Command = Request::get("command");
 
-        Response::render(
-            $Command(),
-            Request::get("path")."/".Request::get("module")."/".Request::get("command")
-        );
+        $Render = $LoadModule->$Command();
+
+        if($Render){
+
+            Response::render(
+                $Render,
+                Request::get("path")."/".Request::get("module")."/".Request::get("command")
+            );
+
+        }
 
         return TRUE;
 

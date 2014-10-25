@@ -8,10 +8,16 @@
 
 namespace System\Modules;
 
-\System\Libraries\Request::load("Libraries/Module.php");
+use System\Libraries\Request;
 
-//use \System\Engines\FireWall;
-//use System\Libraries\Request;
+//Request::load("Libraries/Spyc.php");
+
+Request::load("Libraries/Module.php");
+
+Request::load("Engines/Config.php");
+
+use System\Engines;
+use System\Libraries;
 
 class index extends Module{
 
@@ -35,6 +41,24 @@ class index extends Module{
         $this->data["soyisim"] = "ATALAY";
 
         return $this->render();
+
+    }
+
+    public function config(){
+
+        $Config = new Engines\Config;
+
+        $Conf = $Config->load("Modules/".Request::get("path")."/".Request::get("module")."/config.yml");
+
+        print_r($Conf);
+
+        return $this->render();
+
+    }
+
+    public function session(){
+
+        return false;
 
     }
 
