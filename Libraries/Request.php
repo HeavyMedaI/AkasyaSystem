@@ -10,6 +10,7 @@ namespace System\Libraries;
 
 use \System\Config;
 use \System\Engines;
+use \System\Libraries;
 
 class Request {
 
@@ -65,7 +66,7 @@ class Request {
 
     }
 
-    public static function isPage(Module $Object, $Method){
+    public static function isPage($Object, $Method){
 
        if(method_exists($Object, $Method)){
 
@@ -78,6 +79,8 @@ class Request {
     }
 
     public static function module($Module = NULL){
+
+        Libraries\Session::start();
 
         if(!Request::load("Modules/".Request::get("path")."/".Request::get("module")."/".Request::get("module").__EXTENSION__)){
 

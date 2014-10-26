@@ -56,9 +56,50 @@ class index extends Module{
 
     }
 
+    public function mysql_in(){
+
+        $MySQL = (new Engines\MySQL())->connect([
+            "host" => __MySQL_HOST__,
+            "database" => __MySQL_DB__,
+            "user" => __MySQL_USER__,
+            "password" => __MySQL_PASS__
+        ]);
+
+        if(!$MySQL->Status()){
+
+            exit($MySQL->ErrorHandler()->ErrorMessage());
+          //exit("{$MySQL->ErrNo()} : {$MySQL->Error()} in {$MySQL->Err()->getFile()} on line: {$MySQL->Err()->getLine()}");
+
+        }
+
+        $User = $MySQL->table("users")->in([
+            "/username" => "admin",
+            "/password" => "66b65567cedbc743bda3417fb813b9ba"
+        ]);
+
+        if(!$User->Status()){
+
+          exit("Error : ".$User->ErrorHandler()->ErrorMessage());
+
+        }
+
+        #var_dump($User->LastQuery()->fetchAll());
+
+        echo "Hello World!";
+
+    }
+
     public function session(){
 
         return false;
+
+    }
+
+    public function create_password(){
+
+        $this->data["Password"] = (Request::post("pass")) ? md5(sha1(md5(Request::post("pass")))) : null;
+
+        return $this->render();
 
     }
 

@@ -7,6 +7,15 @@ error_reporting(E_ALL);
 const __EXTENSION__ = ".php";
 const __PROJECT_NAME__ = "AkasyaWeb";
 
+## MySQL Config ##
+
+const __MySQL_HOST__    =   "localhost";
+const __MySQL_DB__      =   "basic_system";
+const __MySQL_USER__    =   "root";
+const __MySQL_PASS__    =   "";
+
+## MySQL Config END ##
+
 require_once "Libraries/Request.php";
 require_once "Libraries/Response.php";
 require_once "Libraries/Stream.php";

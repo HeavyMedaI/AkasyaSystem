@@ -55,7 +55,7 @@ class Stream {
 
     public static function  write($Stream, $Data){
 
-        fwrite($Stream, $Data);
+        return fwrite($Stream, $Data);
 
     }
 

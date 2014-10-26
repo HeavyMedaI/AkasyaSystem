@@ -28,7 +28,7 @@ class Session {
 
         }
 
-        self::load();
+        return self::load();
 
     }
 
@@ -41,19 +41,20 @@ class Session {
         }*/
 
         if(Stream::exist("Sessions/".@$_COOKIE[__PROJECT_NAME__])==FALSE){
-                       echo "ss";            Stream::create("Sessions/".@$_COOKIE[__PROJECT_NAME__]);
+
+            Stream::create("Sessions/".@$_COOKIE[__PROJECT_NAME__]);
 
             $Session = array(
                 "session" => array(
                     "login" => array(
-                        "set" => true
+                        "set" => false
                     )
                 )
             );
 
-            Session::set($Session);
+            return Session::set($Session);
 
-            return false;
+            return true;
 
         }
 

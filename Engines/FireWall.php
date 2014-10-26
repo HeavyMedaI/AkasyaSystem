@@ -21,9 +21,14 @@ class FireWall {
 
         //$this->Session = new Libraries\Session;
 
-        Libraries\Session::start();
+        #Libraries\Session::start();
 
-        $this->Database = new MySQL;
+        $this->Database = (new MySQL())->connect([
+            "host" => __MySQL_HOST__,
+            "database" => __MySQL_DB__,
+            "user" => __MySQL_USER__,
+            "password" => __MySQL_PASS__
+        ]);
 
     }
 
@@ -32,9 +37,9 @@ class FireWall {
         if(
             //$this->Session->get("/session/login/set") == TRUE &&
             Libraries\Session::get("/session/login/set") == TRUE &&
-            $this->Database->in([
-                "/users/username" => Libraries\Session::get("/session/login/username"),
-                "/users/password" => Libraries\Session::get("/session/login/password")
+            $this->Database->table("/users")->in([
+                "/username" => Libraries\Session::get("/session/login/username"),
+                "password" => Libraries\Session::get("/session/login/password")
             ])
         ){
 
