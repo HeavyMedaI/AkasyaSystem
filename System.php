@@ -16,12 +16,12 @@ Request::load("scripts.php");
 
 //Request::load("Modules/".Request::get("path")."/".Request::get("module")."/config.inc");
 
-if(!Request::load("Modules/".Request::get("path")."/".Request::get("module")."/".Request::get("module").__EXTENSION__)){
+/*if(!Request::load("Modules/".Request::get("path")."/".Request::get("module")."/".Request::get("module").__EXTENSION__)){
 
     Request::error(404);
 
     exit;
 
-}
+}*/
 
 Request::module("\\System\\Modules\\".Request::get("module")."/".Request::get("command"));

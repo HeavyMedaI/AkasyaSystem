@@ -65,7 +65,27 @@ class Request {
 
     }
 
+    public static function isPage(Module $Object, $Method){
+
+       if(method_exists($Object, $Method)){
+
+           return TRUE;
+
+        }
+
+        return FALSE;
+
+    }
+
     public static function module($Module = NULL){
+
+        if(!Request::load("Modules/".Request::get("path")."/".Request::get("module")."/".Request::get("module").__EXTENSION__)){
+
+            Request::error(404);
+
+            exit;
+
+        }
 
         $FireWall =  new Engines\FireWall;
 
@@ -87,9 +107,17 @@ class Request {
 
             $LoadModule = new $Module[0];
 
-            $Module[1] = ($Module[1]) ? $Module[1] : "index";
+            $Command = ($Module[1]) ? $Module[1] : "index";
 
-            $Render = $LoadModule->$Module[1]();
+            if(!Request::isPage($LoadModule, $Command)){
+
+                Request::error(404);
+
+                exit;
+
+            }
+
+            $Render = $LoadModule->$Command();
 
             if($Render){
 
@@ -108,7 +136,15 @@ class Request {
 
         $LoadModule = new $M;
 
-        $Command = Request::get("command");
+        $Command = (Request::get("command")) ? Request::get("command") : "index";
+
+        if(!Request::isPage($LoadModule, $Command)){
+
+            Request::error(404);
+
+            exit;
+
+        }
 
         $Render = $LoadModule->$Command();
 
@@ -127,7 +163,13 @@ class Request {
 
     public static function error($ErrCode){
 
-        require_once "Modules/error/".$ErrCode.".html";
+        if(Request::load("Modules".Request::get("path")."/error/".$ErrCode.".html")){
+
+            return TRUE;
+
+        }
+
+        return Request::load("Modules/error/".$ErrCode.".html");
 
     }
 
