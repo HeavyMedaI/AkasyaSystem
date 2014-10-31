@@ -35,13 +35,13 @@ class Config {
 
     private function config(){
 
-         if($this->Configrations["config"]["status"]=="off"){
+         if(@$this->Configrations["config"]["status"]=="off"){
 
               return $this->lock();
 
          }
 
-        if($this->Configrations["config"]["private"]){
+        if(@$this->Configrations["config"]["private"]){
 
             /*Request::login(Request::get("path"));
 
@@ -79,15 +79,15 @@ class Config {
 
         $FireWall = new FireWall();
 
-        if($FireWall->isLogged()){
+        if(!$FireWall->isLogged()){
 
             Request::login(Request::get("path"));
 
-            return FALSE;
+            return false;
 
         }
 
-        return TRUE;
+        return true;
 
     }
 

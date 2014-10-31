@@ -58,9 +58,9 @@ class Request {
 
     public static function login($Path = NULL){
 
-        $Path = ($Path) ? $Path : Request::get("path");
+        $Path = ($Path) ? $Path : Request::get("app");
 
-        Response::render(array(), $Path."/login/panel");
+        Response::render(array(), $Path."/login/index");
 
         exit;
 
@@ -78,11 +78,17 @@ class Request {
 
     }
 
+    public static function snapshot($Path){
+
+        Request::load($Path);
+
+    }
+
     public static function module($Module = NULL){
 
         Libraries\Session::start();
 
-        if(!Request::load("Modules/".Request::get("path")."/".Request::get("module")."/".Request::get("module").__EXTENSION__)){
+        if(!Request::load("Modules/".Request::get("app")."/".Request::get("module")."/".Request::get("module").__EXTENSION__)){
 
             Request::error(404);
 
@@ -90,15 +96,21 @@ class Request {
 
         }
 
+        Request::load("Modules/".Request::get("app")."/config.inc");
+
         $FireWall =  new Engines\FireWall;
 
         $Conf = new Engines\Config;
 
-        $Config = $Conf->load("Modules/".Request::get("path")."/".Request::get("module")."/config.yml");
+        $ConfigApp = $Conf->load("Modules/".Request::get("app")."/config.yml");
+
+        Request::load("Modules/".Request::get("app")."/".Request::get("module")."/config.inc");
+
+        $ConfigModule = $Conf->load("Modules/".Request::get("app")."/".Request::get("module")."/config.yml");
 
         /*if($Conf->isPrivate()){
 
-            Request::login(Request::get("path"));
+            Request::login(Request::get("app"));
 
             return FALSE;
 
@@ -122,16 +134,25 @@ class Request {
 
             $Render = $LoadModule->$Command();
 
-            if($Render){
+            if(is_array($Render)){
 
                 Response::render(
                     $Render,
-                    Request::get("path")."/".Request::get("module")."/".Request::get("command")
+                    Request::get("app")."/".Request::get("module")."/".Request::get("command")
                 );
 
             }
 
-            return TRUE;
+            /*if($Render){
+
+                Response::render(
+                    $Render,
+                    Request::get("app")."/".Request::get("module")."/".Request::get("command")
+                );
+
+            }*/
+
+            return true;
 
         }
 
@@ -155,7 +176,7 @@ class Request {
 
             Response::render(
                 $Render,
-                Request::get("path")."/".Request::get("module")."/".Request::get("command")
+                Request::get("app")."/".Request::get("module")."/".Request::get("command")
             );
 
         }
@@ -166,7 +187,7 @@ class Request {
 
     public static function error($ErrCode){
 
-        if(Request::load("Modules".Request::get("path")."/error/".$ErrCode.".html")){
+        if(Request::load("Modules".Request::get("app")."/error/".$ErrCode.".html")){
 
             return TRUE;
 

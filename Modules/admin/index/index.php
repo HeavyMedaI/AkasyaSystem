@@ -14,8 +14,6 @@ use System\Libraries\Request;
 
 Request::load("Libraries/Module.php");
 
-Request::load("Engines/Config.php");
-
 use System\Engines;
 use System\Libraries;
 
@@ -77,15 +75,38 @@ class index extends Module{
             "/password" => "66b65567cedbc743bda3417fb813b9ba"
         ]);
 
-        if(!$User->Status()){
+        //var_dump($User);
+
+        $Sql = $MySQL
+            ->select("/users:*/(username:=:admin&&email:=:admin@admin)") //A;&&;password:=:admissn||password:=:musa
+            ->where("/;&&;firstname:LIKE:Musa||lastname:LIKE:ATALAY")
+            ->execute();
+
+        /*$MySQL->select([
+            "users" => array(
+                array("username" => "admin"),
+                "&" => array("email" => "admin@admin")
+            )
+        ]);
+
+        $MySQL->select("users")->where([
+            array("username" => "admin"),
+            "&&" => array("email" => "admin@admin")
+        ]);*/
+
+        var_dump($Sql->fetch());
+
+        //var_dump($Sql);
+
+        //$MySQL->select("/users:*")->where("username:musaatalay")->where("password:");
+
+        /*if(!$User->Status()){
 
           exit("Error : ".$User->ErrorHandler()->ErrorMessage());
 
-        }
+        }*/;
 
-        #var_dump($User->LastQuery()->fetchAll());
-
-        echo "Hello World!";
+        //echo "Hello World!";
 
     }
 

@@ -14,6 +14,8 @@ use System\Libraries\Request;
 
 Request::load("scripts.php");
 
+#exit(var_dump($_GET));
+
 //Request::load("Modules/".Request::get("path")."/".Request::get("module")."/config.inc");
 
 /*if(!Request::load("Modules/".Request::get("path")."/".Request::get("module")."/".Request::get("module").__EXTENSION__)){

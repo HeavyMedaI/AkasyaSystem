@@ -12,27 +12,27 @@ namespace System\Libraries;
 
 class Session {
 
-    public function __construct(){
-
-
-
-    }
+    public function __construct(){}
 
     public static function start(){
 
         //$this->Stream = new Libraries\Stream;
 
+        $SessionKey = (@$_COOKIE[__PROJECT_NAME__]) ? $_COOKIE[__PROJECT_NAME__] : null;
+
         if(!isset($_COOKIE[__PROJECT_NAME__])||empty($_COOKIE[__PROJECT_NAME__])||strlen($_COOKIE[__PROJECT_NAME__])<=8){
 
-            setcookie(__PROJECT_NAME__, md5(sha1(md5(date("d-m-Y H:i:s")+time()+rand(1, 9999999999999999999)))));
+            $SessionKey = md5(sha1(md5(date("d-m-Y H:i:s")+time()+rand(1, 9999999999999999999))));
+
+            setcookie(__PROJECT_NAME__, md5(sha1(md5(date("d-m-Y H:i:s")+time()+rand(1, 9999999999999999999)))), (time()+86400), "/");
 
         }
 
-        return self::load();
+        return self::load($SessionKey);
 
     }
 
-    private static function load(){
+    private static function load($SessionKey){
 
         /*if($this->Stream->exist("Sessions/".@$_COOKIE[__PROJECT_NAME__])==FALSE){
 
@@ -40,15 +40,21 @@ class Session {
 
         }*/
 
-        if(Stream::exist("Sessions/".@$_COOKIE[__PROJECT_NAME__])==FALSE){
+        if(Stream::exist("Sessions/".@$SessionKey)==false){
 
-            Stream::create("Sessions/".@$_COOKIE[__PROJECT_NAME__]);
+            Stream::create("Sessions/".@$SessionKey);
 
             $Session = array(
-                "session" => array(
-                    "login" => array(
-                        "set" => false
-                    )
+                "login" => array(
+                    "value" => array(
+                        "set" => array(
+                            "value" => false,
+                            "path" => "/",
+                            "expire" => null
+                        )
+                    ),
+                    "path" => "/",
+                    "expire" => null
                 )
             );
 
@@ -58,19 +64,33 @@ class Session {
 
         }
 
+        return true;
+
     }
 
     public static function get($Path){
 
-        $Tree = explode("/", ltrim($Path, "/"));
+        if(!Stream::exist("Sessions/".@$_COOKIE[__PROJECT_NAME__])){
+
+            return false;
+
+        }
 
         $Stream = Spyc::YAMLLoadString(Stream::read("Sessions/".@$_COOKIE[__PROJECT_NAME__]));
 
         $Return = $Stream;
 
+        if($Path=="/"){
+
+            return $Return;
+
+        }
+
+        $Tree = explode("/", ltrim($Path, "/"));
+
         foreach($Tree as $Session){
 
-             $Return = $Return[$Session];
+             $Return = @$Return[$Session]["value"];
 
         }
 
@@ -80,9 +100,45 @@ class Session {
 
     public static function set($Data){
 
-        $Streaming = Spyc::YAMLDump($Data, 4, 60);
+        if(!Stream::exist("Sessions/".@$_COOKIE[__PROJECT_NAME__])){
+
+            return false;
+
+        }
+        //var_dump($Data["login"]["value"]);
+        if(is_array($Data)){
+
+            $Data = array(
+                "session" => array(
+                    "value" => $Data,
+                    "path" => "/",
+                    "expire" => null
+                ),
+                "path" => "/",
+                "expire" => null
+            );
+
+        }
+
+        $SettedSession = Session::get("/");
+
+        if(!is_array($SettedSession)||empty($SettedSession)){
+
+            $SettedSession = array();
+
+        }
+
+        $Data = array_merge($SettedSession, $Data);
+
+        $Streaming = substr(Spyc::YAMLDump($Data, 4, 60), 3, (strlen(Spyc::YAMLDump($Data, 4, 60))-3));
 
         return Stream::write(Stream::stream("Sessions/".@$_COOKIE[__PROJECT_NAME__], "STREAM_C"), $Streaming);
+
+    }
+
+    public static function password($Password){
+
+        return md5(sha1(md5($Password)));
 
     }
 

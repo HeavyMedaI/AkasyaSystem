@@ -25,37 +25,51 @@ class Stream {
 
     public static function stream($Path, $StreamType){
 
-        return fopen($Path, self::$StreamTypes[$StreamType]);
+        $Open =  @fopen($Path, self::$StreamTypes[$StreamType]);
+
+        if($Open){
+
+            return $Open;
+
+        }
+
+        return false;
 
     }
 
     public static function exist($Path){
 
-        if(file_exists($Path)){
+        if(is_readable($Path)){ # file_exists
 
-            return TRUE;
+            return true;
 
         }
 
-        return FALSE;
+        return false;
 
     }
 
     public static function create($Path){
 
-        return fopen($Path, "x+");
+        return touch($Path, time()); # fopen($Path, "x+")
 
     }
 
     public static function read($Source){
 
-        return file_get_contents($Source);
+        return @file_get_contents($Source);
 
     }
 
-    public static function  write($Stream, $Data){
+    public static function write($Stream, $Data){
 
-        return fwrite($Stream, $Data);
+        if(@fwrite($Stream, $Data)<=1){
+
+            return true;
+
+        }
+
+        return false;
 
     }
 

@@ -16,6 +16,10 @@ const __MySQL_PASS__    =   "";
 
 ## MySQL Config END ##
 
+## Request Config ##
+
+## Request Config END ##
+
 require_once "Libraries/Request.php";
 require_once "Libraries/Response.php";
 require_once "Libraries/Stream.php";
@@ -23,3 +27,4 @@ require_once "Libraries/Session.php";
 
 require_once "Engines/MySQL.php";
 require_once "Engines/FireWall.php";
+require_once "Engines/Config.php";

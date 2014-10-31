@@ -36,18 +36,18 @@ class FireWall {
 
         if(
             //$this->Session->get("/session/login/set") == TRUE &&
-            Libraries\Session::get("/session/login/set") == TRUE &&
+            Libraries\Session::get("/session/login/set") &&
             $this->Database->table("/users")->in([
                 "/username" => Libraries\Session::get("/session/login/username"),
                 "password" => Libraries\Session::get("/session/login/password")
             ])
         ){
 
-           return TRUE;
+           return true;
 
         }
 
-        return FALSE;
+        return false;
 
     }
 
