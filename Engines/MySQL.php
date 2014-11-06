@@ -371,6 +371,7 @@ class SqlMaker{
             $this->LastSqlSet["QueryString"] .= "({$Columns}) VALUES ({$Values})";
 
         }
+
         //$this->LastSqlSet["QueryString"] = "SELECT {$Columns} FROM `{$Table}` WHERE ".$Blocks;
 
         return $this;
@@ -1102,6 +1103,12 @@ class Insert{
         }
 
         return $this;
+
+    }
+
+    public function insertId($Object = null){
+
+        return $this->Conn->lastInsertId(null);
 
     }
 

@@ -70,23 +70,80 @@ class villa extends Module {
     }
 
     public function insert(){
-        
+
+        $Res = array("response" => false, "insert_id" => false);
+
         $Values = "/";
 
-        /*foreach (Request::post() as $col => $val) {
+        foreach (Request::post() as $col => $val) {
 
+            if(empty($val)||$val==null||strlen($val)<=0){
 
+                continue;
 
-        }*/
+            }
 
-        $Insert = $this->MySQL->insert("/villa")->data("/name:Deneme;aciklama:Deneme");
+            $Values .= "{$col}::{$val};;";
+
+        }
+
+        $Insert = $this->MySQL->insert("/villa")->data($Values);
+
+        $Res["response"] = $Insert->execute();
+
+        $Res["insert_id"] = ($Res["response"]) ? $Insert->insertId() : false;
+
+        Libraries\Response::header("json");
+
+        Libraries\Response::json($Res);
 
 
     }
 
     public function update(){
 
+        $ThumbnailDir = "_assets/images/rooms/";
 
+    }
+
+    public function uploadGallery(){
+
+        $StoreFolder = '../../villa/index/_assets/images/gallery/';
+
+        $tempFile = Request::file("file")['tmp_name'];
+
+        $targetPath = dirname( __FILE__ ) ."/". $StoreFolder;
+
+        $targetFile =  $targetPath.Request::file("file")['name'];
+
+        $Upload = move_uploaded_file($tempFile,$targetFile);
+
+    }
+
+    public function addGallery(){
+
+        $StorePath = '_assets/images/gallery/';
+
+        $Res = array("response" => false);
+
+        $Villa = $this->MySQL->select("/villa:*name/id:=:".Request::post("villa_id"))->asc("/id")->execute(["fetch" => "first"], true);
+
+        $ImageSrc = "/ref_id::".Request::post("villa_id").";;src::".$StorePath.Request::post("file_name");
+        $ImageSrc .= ";;alt::".$Villa->name.";;title::".$Villa->name;
+
+        $Insert = $this->MySQL->insert("/resimler")->data($ImageSrc);
+
+        $Res["response"] = $Insert->execute();
+
+        Libraries\Response::header("json");
+
+        Libraries\Response::json($Res);
+
+    }
+
+    public function removeGallery(){
+
+        exit(json_encode(array("response" => true)));
 
     }
 
@@ -146,9 +203,9 @@ class villa extends Module {
 
     public function test(){
 
-        $Insert = $this->MySQL->insert("/villa")->data("/name::Deneme Adı;;description::Deneme Açıklama");
+        $Insert = $this->MySQL->insert("/villa")->data("/name::Deneme Adı;;description::Deneme Açıklama")->execute();
 
-        var_dump($Insert->execute());
+        var_dump($Insert);
 
     }
 

@@ -68,7 +68,37 @@ class Request {
 
     public static function isPost(){
 
-        if((isset($_POST[$Index])&&!empty($_POST[$Index]))&&($_POST[$Index]!=null&&strlen($_POST[$Index])>=1)){
+        if((@isset($_POST[$Index])&&!empty(@$_POST[$Index]))&&(@$_POST[$Index]!=null&&strlen(@$_POST[$Index])>=1)){
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public static function file($Index=null){
+
+        if($Index==null){
+
+            return $_FILES;
+
+        }
+
+        if(isset($_FILES[$Index])&&!empty($_FILES[$Index])){
+
+            return $_FILES[$Index];
+
+        }
+
+        return false;
+
+    }
+
+    public static function isFile(){
+
+        if((@isset($_FILES[$Index])&&!empty(@$_FILES[$Index]))&&(@$_FILES[$Index]!=null&&strlen(@$_FILES[$Index])>=1)){
 
             return true;
 

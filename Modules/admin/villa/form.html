@@ -1,5 +1,10 @@
 <?php require_once "Modules/admin/layouts/head.html"; ?>
+<link rel="stylesheet" type="text/css" href="../_assets/plugins/dropzone/css/dropzone.css" />
 <script src="../_assets/res/tinymce/tinymce.js"></script>
+<!--<script src="../_assets/plugins/require.js"></script>
+<script src="../_assets/plugins/dropzone/dropzone-amd-module.js"></script>-->
+<script src="../_assets/plugins/dropzone/dropzone.js"></script>
+
 <body>
 
 <div id="wrapper">
@@ -16,7 +21,7 @@
                 <div class="row inp-cont">
                     <label>Villa Adı</label>
                     <input name="name" type="text">
-                    <input name="id" type="hidden">
+                    <input class="villaId" name="id" type="hidden">
                 </div>
             </div>
         </div>
@@ -36,6 +41,13 @@
                 </textarea>
             </div>
         </div>
+        <div class="box g16">
+            <form class="dropzone" id="GalleryUploader" action="uploadGallery" method="post" enctype="multipart/form-data"></form>
+            <!--<form class="uploadGallery" action="uploadGallery" method="post" enctype="multipart/form-data"></form>-->
+            <!--<form method="post" enctype="multipart/form-data">
+                <input type="file" name="file" />
+            </form>-->
+        </div>
     </div>
 
     <div class="g4">
@@ -50,12 +62,11 @@
                 <div class="row inp-cont">
                     <label>Yatak Sayısı</label>
                     <select name="yatak_sayisi" class="required inset">
-                        <option selected disabled>Seçiniz</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
-                        <option value="1">3</option>
-                        <option value="2">4</option>
-                        <option value="1">5+</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5+">5+</option>
                     </select>
                 </div>
                 <div class="row inp-cont">
@@ -167,18 +178,11 @@
 </div><!--END WRAPPER-->
 
 <div id="load"><div id="spinner"></div></div>
-
+<?php require_once "Modules/admin/layouts/scripts.html"; ?>
 <!---jQuery Code-->
 <script type="text/javascript">
-    $.fn.loadfns( function() { // PUT FUNCTIONS TO BE EXECUTED ON DOCUMENT READY HERE
-        $('.spark').sparkline('html', {
-            type: 'bar', height: '40px', barSpacing: 4, barColor: '#89A824', negBarColor: '#d6692f'
-        });
-        $('#intro').nanoScroller();
-        $("#table").tablesorter();
-    });
 
-    $(function(){
+    $.fn.loadfns( function() {
 
         tinymce.init({
             selector: "#wysiwyg",
@@ -189,69 +193,17 @@
             ],
             toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image"
         });
-
-        $(".kaydet").click(function(){
-
-            var This = $(this);
-
-            $(this).attr("disabled","disabled").find(".icon").removeClass("icon-ok").addClass("icon-circleselection spinning");
-
-            var Data = $("input[type='text'], input[type='hidden'], input[type='checkbox']:checked").serialize();
-
-            $.post("set", Data, function(e){
-
-                var dataJSON = eval(e);
-
-                if(dataJSON.response){
-
-                    App(".ust-kutu .bildirim-alani").notif({
-                        "message": {
-                            "header": "Kayıt işlemi başarılı.",
-                            "subtext": "Kaydedildi."
-                        },
-                        "icon": {
-                            "icon": "ok-sign",
-                            "color": "green",
-                            "size": null
-                        },
-                        "callBy": $(this),
-                        "callback": function(This){
-
-                            This.removeAttr("disabled").find(".icon").removeClass("icon-circleselection spinning").addClass("icon-ok");
-
-                        }
-                    });
-
-                }else{
-
-                    App(".ust-kutu .bildirim-alani").notif({
-                        "message": {
-                            "header": "Hata: Kayıt işlemi gerçekleştirilemedi.",
-                            "subtext": dataJSON.message
-                        },
-                        "icon": {
-                            "icon": "lightningalt glow",
-                            "color": "red",
-                            "size": null
-                        },
-                        "callBy": This,
-                        "callback": function(This){
-
-                            This.removeAttr("disabled").find(".icon").removeClass("icon-circleselection spinning").addClass("icon-ok");
-
-                        }
-                    });
-
-                }
-
-            });
-
+        $('.spark').sparkline('html', {
+            type: 'bar', height: '40px', barSpacing: 4, barColor: '#89A824', negBarColor: '#d6692f'
         });
-
+        $('#intro').nanoScroller();
+        $("#table").tablesorter();
+        $(".kaydet").click(function(){
+            VillaKaydet();
+        });
     });
 
 </script>
 
-<?php require_once "Modules/admin/layouts/scripts.html"; ?>
 </body>
 </html>

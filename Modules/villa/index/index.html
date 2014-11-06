@@ -183,9 +183,19 @@
                           echo '<div class="col-xs-6">';
                           echo '<ul class="list-unstyled">';
 
+                          $say = 1;
+
                           for($x=0;$x<count($Villa[$i]["attr"]);$x++){
 
                               echo '<li><i class="fa fa-check-circle"></i> '.$Villa[$i]["attr"][$x].'</li>';
+
+                              if($say%((count($Villa[$i]["attr"])/2)+(count($Villa[$i]["attr"])%2))==0){
+
+                                    echo "</ul></div>";
+                                    echo '<div class="col-xs-6 '.$s.'">';
+                                    echo '<ul class="list-unstyled">';
+
+                              }
 
                               if(@((count($Villa[$i]["attr"])/@($x+1))==2.00)&&@((count($Villa[$i]["attr"])%@($x+1))==0)){
 
@@ -197,6 +207,8 @@
                                 echo '<ul class="list-unstyled">';
 
                               }
+
+                              $say++;
 
                           }
 

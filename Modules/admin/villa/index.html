@@ -1,6 +1,5 @@
 <?php require_once "Modules/admin/layouts/head.html"; ?>
 <body>
-<script src="<?=__ROOT_DIR__;?>admin/_assets/js/datatables.js"></script>
 <div id="wrapper">
 
     <?php require_once "Modules/admin/layouts/sidebar.html"; ?>
@@ -137,17 +136,12 @@
 </div><!--END WRAPPER-->
 
 <div id="load"><div id="spinner"></div></div>
-
+<script src="../_assets/js/datatables.js"></script>
+<?php require_once "Modules/admin/layouts/scripts.html"; ?>
 <!---jQuery Code-->
 <script type="text/javascript">
-    $.fn.loadfns( function() { // PUT FUNCTIONS TO BE EXECUTED ON DOCUMENT READY HERE
-        $('.spark').sparkline('html', {
-            type: 'bar', height: '40px', barSpacing: 4, barColor: '#89A824', negBarColor: '#d6692f'
-        });
-        $('#intro').nanoScroller();
-        $("#table").tablesorter();
-    });
-    $(function(){
+    $.fn.loadfns( function() {
+        VillaListener();
         $('#table-villalar').dataTable({
             "sPaginationType": "full_numbers", "aLengthMenu": [5, 10, 25], "iDisplayLength": 5,
             "fnDrawCallback": function() {
@@ -156,61 +150,13 @@
             },
             "order": [[ 1, "asc" ]]
         });
-
-        $(".villa-sil").click(function(){
-            var Parent = $(this).parent().parent();
-            var Data = eval("(" + Parent.data("rel") + ")");
-            $(".modal-ov > .confirm-sil .text-msg").html("<strong>" + Data.name + "</strong>" + " isimli villayı silmek istediğinizden emin misiniz?");
-            $(".modal-ov, .modal-ov > .confirm-sil").addClass("show");
-            $(".modal-ov > .confirm-sil .yes").click(function(){
-                $.post("sil", {id: Data.id}, function(e){
-                    Parent.remove();
-                });
-            });
+        $('.spark').sparkline('html', {
+            type: 'bar', height: '40px', barSpacing: 4, barColor: '#89A824', negBarColor: '#d6692f'
         });
-
-        $(".villa-active").click(function(e){
-
-            var This = $(this);
-
-            var Parent = $(this).parent().parent();
-
-            Parent.find(".durum").html('<span class="icon-circleselection spinning"></span>');
-
-            var Data = eval("(" + Parent.data("rel") + ")");
-
-            $.post("active", {id: Data.id}, function(e){
-
-                Parent.find(".durum").html('<span class="tag green">Aktif</span>');
-
-                This.css("display","none");
-
-                This.parent().find(".villa-deactive").css("display","inline-block");
-
-            });
-
-        });
-
-        $(".villa-deactive").click(function(){
-
-            var This = $(this);
-
-            var Parent = $(this).parent().parent();
-
-            Parent.find(".durum").html('<span class="icon-circleselection spinning"></span>');
-
-            var Data = eval("(" + Parent.data("rel") + ")");
-
-            $.post("deactive", {id: Data.id}, function(e){
-
-                Parent.find(".durum").html('<span class="tag red">Deaktif</span>');
-
-                This.css("display","none");
-
-                This.parent().find(".villa-active").css("display","inline-block");
-
-            });
-
+        $('#intro').nanoScroller();
+        $("#table").tablesorter();
+        $(".dataTables_wrapper .dataTables_paginate.paging_full_numbers a.button").click(function(){
+            VillaListener();
         });
 
     });

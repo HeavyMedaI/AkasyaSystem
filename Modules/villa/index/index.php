@@ -57,7 +57,7 @@ class index extends Module {
 
         $Villa = new \Villa;
 
-        $Rezervasyonlar = $this->MySQL->select("/rezervasyon:COUNT(*) AS TOPLAM, villa_id")->group("/villa_id")->asc("TOPLAM")->limit("0;3");
+        $Rezervasyonlar = $this->MySQL->select("/rezervasyon:COUNT(*) AS TOPLAM, villa_id")->where("/approved:=:1")->group("/villa_id")->asc("TOPLAM")->limit("0;3");
 
         $fetchRezervasyonlar = $Rezervasyonlar->execute();
 
