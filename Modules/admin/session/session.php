@@ -115,4 +115,14 @@ class session extends Module {
 
     }
 
+    public function getUsers(){
+
+        $getUsers = $this->conn->select("/users")->asc("/mode");
+
+        $getUsers->execute();
+
+        var_dump($getUsers->fetchAll());
+
+    }
+
 } 

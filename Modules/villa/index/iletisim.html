@@ -1,0 +1,109 @@
+<?php require_once "Modules/villa/layouts/head.html"; ?>
+<body>
+
+<?php require_once "Modules/villa/layouts/top-bar.html"; ?>
+
+<?php require_once "Modules/villa/layouts/top-menu.html"; ?>
+
+<!-- GMap -->
+<div id="map">
+  <p>This will be replaced with the Google Map.</p>
+</div>
+<div class="container">
+  <div class="row"> 
+    <!-- Contact form -->
+    <section id="contact-form" class="mt50">
+      <div class="col-md-8">
+        <h2 class="lined-heading"><span>Mesa Gönderin</span></h2>
+        <p><?=$config["about"];?></p>
+        <div id="message"></div>
+        <!-- Error message display -->
+        <form class="clearfix mt50" role="form" method="post" action="php/contact.php" name="contactform" id="contactform">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="name" accesskey="U"><span class="required">*</span> Adınız Soyadınız</label>
+                <input name="name" type="text" id="name" class="form-control" value="" placeholder="Adınız Soyadınız" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="email" accesskey="E"><span class="required">*</span> E-posta</label>
+                <input name="email" type="text" id="email" value="" class="form-control" placeholder="E-posta adresiniz" />
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="subject" accesskey="S">Konu</label>
+            <select name="subject" id="subject" class="form-control">
+              <option value="Booking">Villa Kiralama</option>
+              <option value="a Room">Oto Kiralama</option>
+              <option value="other">Etkinlikler</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="comments" accesskey="C"><span class="required">*</span> Mesajınız</label>
+            <textarea name="comments" rows="9" id="comments" class="form-control" placeholder="Mesajınız"></textarea>
+          </div>
+          <div style="display: none;" class="form-group">
+            <label><span class="required">*</span> Spam Filter: &nbsp;&nbsp;&nbsp;3 + 1 =</label>		  
+            <input name="verify" type="text" id="verify" value="" class="form-control" placeholder="Please enter the outcome" />
+          </div>
+          <button type="submit" class="btn  btn-lg btn-primary">Gönder</button>
+        </form>
+      </div>
+    </section>
+    
+    <!-- Contact details -->
+    <section class="contact-details mt50">
+      <div class="col-md-4">
+        <h2 class="lined-heading"><span>Adres</span></h2>
+        <a href="_assets/images/contact/948x632.gif" data-rel="prettyPhoto"><img src="_assets/images/contact/361x235.gif" alt="Image 1" class="img-thumbnail img-responsive"></a>
+        <address class="mt50">
+        <strong><?=$config["company"];?></strong><br>
+        <?=$config["address"];?><br>
+        <abbr title="Telefon">T:</abbr> <a href="tel:<?=$config["phone"];?>"><?=$config["phone"];?></a><br>
+        <abbr title="E-Posta">E:</abbr> <a href="mailto:<?=$config["email"];?>"><?=$config["email"];?></a><br>
+        <abbr title="Website">W:</abbr> <a href="href://<?=$config["website"];?>"><?=$config["website"];?></a><br>
+        </address>
+        <h2 class="lined-heading mt50"><span>Sosyal Ağlarda Biz</span></h2>
+        <div class="row">
+          <div class="col-xs-4">
+            <div class="box-icon"> <a href="http://www.facebook.com/<?=$config['facebook'];?>" target="_blank">
+              <div class="circle"><i class="fa fa-facebook fa-lg"></i></div>
+              </a> </div>
+          </div>
+          <div class="col-xs-4">
+            <div class="box-icon"> <a href="http://www.twitter.com/<?=$config['twitter'];?>" target="_blank">
+              <div class="circle"><i class="fa fa-twitter fa-lg"></i></div>
+              </a> </div>
+          </div>
+          <div class="col-xs-4">
+            <div class="box-icon"> <a href="http://tr.linkedin.com/pub/<?=$config['linkedin'];?>" target="_blank">
+              <div class="circle"><i class="fa fa-linkedin fa-lg"></i></div>
+              </a> </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Call To Action -->
+<section id="call-to-action" class="mt100">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-sm-8 col-xs-12">
+        <h2>This is a Call to Action that you can use for all purposes!</h2>
+      </div>
+      <div class="col-md-4 col-sm-4 col-xs-12">
+        <a href="elements.html" class="btn btn-default btn-lg pull-right">More features</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<?php require_once "Modules/villa/layouts/footer.html"; ?>
+
+</body>
+</html>

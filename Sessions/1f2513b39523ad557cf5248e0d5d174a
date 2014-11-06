@@ -1,0 +1,17 @@
+
+session:
+    value:
+        login:
+            value:
+                set:
+                    value: true
+                username:
+                    value: admin
+                password:
+                    value: 66b65567cedbc743bda3417fb813b9ba
+            path: /
+            expire: null
+    path: /
+    expire: null
+path: /
+expire: null

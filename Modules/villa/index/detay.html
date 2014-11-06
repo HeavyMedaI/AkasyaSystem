@@ -1,0 +1,246 @@
+<?php require_once "Modules/villa/layouts/head.html"; ?>
+<body>
+
+<?php require_once "Modules/villa/layouts/top-bar.html"; ?>
+
+<?php require_once "Modules/villa/layouts/top-menu.html"; ?>
+
+<!-- Parallax Effect -->
+<script type="text/javascript">$(document).ready(function(){$('#parallax-pagetitle').parallax("50%", -0.55);});</script>
+
+<section class="parallax-effect">
+  <div id="parallax-pagetitle" style="background-image: url(./_assets/images/parallax/1900x911.gif);">
+    <div class="color-overlay"> 
+      <!-- Page title -->
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <ol class="breadcrumb">
+              <li><a href="index.html">Ana Sayfa</a></li>
+              <li><a href="villalar.html.html">Villalar</a></li>
+              <li class="active">Deneme Villa 2</li>
+            </ol>
+            <h1>Villa Detayları</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="container mt50">
+  <div class="row"> 
+    <!-- Slider -->
+    <section class="standard-slider room-slider">
+      <div class="col-sm-12 col-md-8">
+        <div id="owl-standard" class="owl-carousel">
+            <?php
+
+                foreach($VillaGaleri as $Galeri){
+
+                    echo '
+                        <div class="item">
+                            <a href="'.$Galeri->src.'" title="'.$Galeri->alt.'" data-rel="prettyPhoto[gallery1]"><img src="'.$Galeri->src.'" alt="'.$Galeri->alt.'" title="'.$Galeri->alt.'"> </a>
+                        </div>
+                    ';
+
+                }
+
+            ?>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Reservation form -->
+    <section id="reservation-form" class="mt50 clearfix">
+      <div class="col-sm-12 col-md-4">
+        <form class="reservation-vertical clearfix" role="form" method="post" action="php/reservation.php" name="reservationform" id="reservationform">
+          <h2 class="lined-heading"><span>Rezervasyon</span></h2>
+          <div class="price">
+            <h4><?=$Detay["data"]->name;?></h4>
+            &euro; <?=$Detay["data"]->gecelik_fiyat;?>,-<span> a night</span></div>
+          <div id="message"></div>
+          <!-- Error message display -->
+          <div class="form-group">
+            <label for="email" accesskey="E">E-posta</label>
+            <input name="email" type="text" id="email" value="" class="form-control" placeholder="Lütfen E-posta adresinizi giriniz"/>
+          </div>
+          <div class="form-group">
+            <select class="hidden" name="room" id="room" disabled="disabled">
+              <option selected="selected">Double Room</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="checkin">Giriş Tarihi</label>
+            <div class="popover-icon" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Check-In is from 11:00"> <i class="fa fa-info-circle fa-lg"> </i> </div>
+            <i class="fa fa-calendar infield"></i>
+            <input name="checkin" type="text" id="checkin" value="" class="form-control" placeholder="Giriş Tarihi"/>
+          </div>
+          <div class="form-group">
+            <label for="checkout">Çıkış Tarihi</label>
+            <div class="popover-icon" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Check-out is from 12:00"> <i class="fa fa-info-circle fa-lg"> </i> </div>
+            <i class="fa fa-calendar infield"></i>
+            <input name="checkout" type="text" id="checkout" value="" class="form-control" placeholder="Çıkış Tarihi"/>
+          </div>
+          <div class="form-group">
+            <div class="guests-select">
+              <label>Kişi Sayısı</label>
+              <i class="fa fa-user infield"></i>
+              <div class="total form-control" id="test">1</div>
+              <div class="guests">
+                <div class="form-group adults">
+                  <label for="adults">Yetişkin</label>
+                  <div class="popover-icon" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="+18 years"> <i class="fa fa-info-circle fa-lg"> </i> </div>
+                  <select name="adults" id="adults" class="form-control">
+                    <option value="1">1 kişi</option>
+                    <option value="2">2 kişi</option>
+                    <option value="3">3 kişi</option>
+                  </select>
+                </div>
+                <div class="form-group children">
+                  <label for="children">Çocuk</label>
+                  <div class="popover-icon" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="0 till 18 years"> <i class="fa fa-info-circle fa-lg"> </i> </div>
+                  <select name="children" id="children" class="form-control">
+                    <option value="0">0 kişi</option>
+                    <option value="1">1 kişi</option>
+                    <option value="2">2 kişi</option>
+                    <option value="3">3 kişi</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-default button-save btn-block">Kaydet</button>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Tamamla</button>
+        </form>
+      </div>
+    </section>
+    
+    <!-- Room Content -->
+    <section>
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-7 mt50">
+            <h2 class="lined-heading"><span>Villa Detayları</span></h2>
+            <h3 class="mt50">Villa Özellikleri</h3>
+            <table class="table table-striped mt30">
+              <tbody>
+                <tr>
+                    <?php
+
+                        for($i=0;$i<count($Detay["attr"]);$i++){
+
+                            if($i%3==0){
+
+                                echo "</tr><tr>";
+
+                            }
+
+                            echo '<td><i class="fa fa-check-circle"></i> '.$Detay["attr"][$i].'</td>';
+
+                        }
+
+                    ?>
+                </tr>
+              </tbody>
+            </table>
+            <p class="mt50"><?=$Detay["data"]->description;?></p>
+          </div>
+          <div class="col-sm-5 mt50">
+            <h2 class="lined-heading"><span>Genel Açıklamalar</span></h2>
+            
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#overview" data-toggle="tab">Genel</a></li>
+              <li><a href="#facilities" data-toggle="tab">Etkinlikler</a></li>
+              <li><a href="#extra" data-toggle="tab">Ekstra</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div class="tab-pane fade in active" id="overview">
+                  <?=$config["genel_aciklama"];?>
+              </div>
+              <div class="tab-pane fade" id="facilities">
+                  <table class="table table-striped mt30">
+                      <tbody>
+                      <tr>
+                          <?php
+
+                        foreach($config["etkinlikler"] as $etkinlik){
+
+                            echo '<td><i class="fa fa-check-circle"></i> '.$etkinlik->name.'</td>';
+                            echo '<td><i class="fa fa-check-circle"></i> '.$etkinlik->address.'</td>';
+                            echo '<td><i class="fa fa-check-circle"></i> '.$Date::tarihFormatla($etkinlik->date, "readable").'</td>';
+
+                          }
+
+                          ?>
+                      </tr>
+                      </tbody>
+                  </table>
+              </div>
+              <div class="tab-pane fade" id="extra"><?=$config["ekstra"];?></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Other Rooms -->
+<section class="rooms mt50">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <h2 class="lined-heading"><span>Diğer Villalar</span></h2>
+      </div>
+        <?php for($i=0;$i<count($Villa);$i++){ ?>
+        <div class="col-sm-4 single">
+            <div class="room-thumb"> <img src="<?=$Villa[$i]["data"]->thumbnail;?>" alt="room 1" class="img-responsive" />
+                <div class="mask">
+                    <div class="main">
+                        <h5><?=$Villa[$i]["data"]->name;?></h5>
+                        <div class="price">&euro; <?=$Villa[$i]["data"]->gecelik_fiyat;?><span>a night</span></div>
+                    </div>
+                    <div class="content">
+                        <p><?=$Villa[$i]["data"]->description;?></p>
+                        <div class="row">
+                            <?php
+
+                                echo '<div class="col-xs-6">';
+                            echo '<ul class="list-unstyled">';
+
+                            for($x=0;$x<count($Villa[$i]["attr"]);$x++){
+
+                            echo '<li><i class="fa fa-check-circle"></i> '.$Villa[$i]["attr"][$x].'</li>';
+
+                            if(@((count($Villa[$i]["attr"])/@($x+1))==2.00)&&@((count($Villa[$i]["attr"])%@($x+1))==0)){
+
+                            $s = count($Villa[$i]['attr'])%($x+1);
+
+                            echo "</ul></div>";
+
+                        echo '<div class="col-xs-6 '.$s.'">';
+                        echo '<ul class="list-unstyled">';
+
+                            }
+
+                            }
+
+                            echo "</ul></div>";
+
+                        ?>
+                    </div>
+                    <a href="detay/<?=$Villa[$i]["data"]->id;?>" class="btn btn-primary btn-block">Detaylı İncele</a> </div>
+            </div>
+        </div>
+    </div>
+      <?php } ?>
+    </div>
+  </div>
+</section>
+
+<?php require_once "Modules/villa/layouts/footer.html"; ?>
+
+</body>
+</html>

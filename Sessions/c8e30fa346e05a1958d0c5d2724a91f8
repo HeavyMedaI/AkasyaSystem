@@ -1,0 +1,6 @@
+
+session:
+    login:
+        set: true
+        username: admin
+        password: 66b65567cedbc743bda3417fb813b9ba

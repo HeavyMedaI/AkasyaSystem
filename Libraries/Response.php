@@ -23,7 +23,7 @@ class Response {
 
         extract($Data);
 
-        require_once "Modules/".$Themplate.".html";
+        @require_once "Modules/".$Themplate.".html";
 
     }
 

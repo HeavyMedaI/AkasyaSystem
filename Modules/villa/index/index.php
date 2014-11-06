@@ -28,31 +28,136 @@ class index extends Module {
             "password" => __MySQL_PASS__
         ]);
 
+        $this->data["Date"] = new Libraries\Date;
+
+        $this->MySQL->character("utf8");
+
         if(!$this->MySQL->Status()){
 
             exit($MySQL->ErrorHandler()->ErrorMessage());
 
         }
 
+        $Config = $this->getSystemConfig("/config");
+
+        $this->data["config"]["title"] = $Config["project_name"];
+        $this->data["config"] = array_merge($this->data["config"], $Config["administrator"]);
+        $this->data["config"]["about"] = $this->MySQL->select("/icerikler:*")->where("/name:=:hakkimizda")->where("active:=:1")->asc("/id")->execute(["fetch" => "first"], true)->text;
+        $this->data["config"]["genel_aciklama"] = $this->MySQL->select("/icerikler:*")->where("/name:=:genel_aciklama")->where("active:=:1")->asc("/id")->execute(["fetch" => "first"], true)->text;
+        $this->data["config"]["ekstra"] = $this->MySQL->select("/icerikler:*")->where("/name:=:ekstra")->where("active:=:1")->asc("/id")->execute(["fetch" => "first"], true)->text;
+        $this->data["config"]["etkinlikler"] = $this->MySQL->select("/etkinlikler:*")->where("/active:=:1")->asc("id")->execute(["fetch"=>"all"], true);
+
+        return $this;
+
     }
 
     public function index(){
 
-        $this->data["dump"] = $_GET;
+        Request::load("Modules/villa/class/villa.php");
 
-        $Rezervasyonlar = $this->MySQL->select("/rezervasyon:COUNT(*), villa_id")->group("/villa_id")->limit("3");
+        $Villa = new \Villa;
 
-        $SelectedRezervasyonlar = $Rezervasyonlar->execute();
+        $Rezervasyonlar = $this->MySQL->select("/rezervasyon:COUNT(*) AS TOPLAM, villa_id")->group("/villa_id")->asc("TOPLAM")->limit("0;3");
 
-        $PopulerRezervasyonlar = $Rezervasyonlar->fetchAll(Engines\MySQL::FETCH_OBJ);
+        $fetchRezervasyonlar = $Rezervasyonlar->execute();
 
-        $Villalar = $this->MySQL->select("/villa:*")->where("(id:=:".$PopulerRezervasyonlar[0]->villa_id."||id:=:".$PopulerRezervasyonlar[1]->villa_id."||id:=:".$PopulerRezervasyonlar[2]->villa_id.")");
+        $this->data["Villa"] = array();
 
-        $Villalar->execute();
+        for($i=0;$i<$fetchRezervasyonlar->rowCount();$i++){
 
-        //var_dump($SelectedRezervasyonlar->row(1));
+            $Data = $fetchRezervasyonlar->row($i)->col("villa_id")->select("/villa:*/id:=:villa_id")->execute(["fetch"=>"first"], true);
 
-        $SelectedRezervasyonlar->row(1)->col("villa_id")->select("/villa:*/id:=:villa_id")->asc("/id");
+            $this->data["Villa"][] = array(
+                "data" => $Data,
+                "attr" => $Villa->ozellikler($Data)
+            );
+
+        }
+        /*foreach ($Rezervasyonlar->execute(null, true) as $Row) {
+
+            $this->data["Villa"][] = $this->MySQL->select("/villa:*")->where("(id:=:".$Row->villa_id.")")->execute(["fetch"=>"first"], true);
+
+        }*/
+
+        //var_dump($this->data["Villa"][1]);
+
+        Libraries\Response::header("html");
+
+        return $this->render();
+
+    }
+
+    public function villalar(){
+
+        Request::load("Modules/villa/class/villa.php");
+
+        $Villa = new \Villa;
+
+        $Data = $this->MySQL->select("/villa:*")->asc("id")->execute(["fetch"=>"all"], true);
+
+        foreach ($Data as $villa) {
+
+            $this->data["Villa"][] = array(
+                "data" => $villa,
+                "attr" => $Villa->ozellikler($villa)
+            );
+
+        }
+
+        return $this->render();
+
+    }
+
+    public function detay(){
+
+        Request::load("Modules/villa/class/villa.php");
+
+        $Villa = new \Villa;
+
+        $Data = $this->MySQL->select("/villa:*")->asc("id")->execute(["fetch"=>"all"], true);
+
+        foreach ($Data as $villa) {
+
+            $this->data["Villa"][] = array(
+                "data" => $villa,
+                "attr" => $Villa->ozellikler($villa)
+            );
+
+        }
+
+        $DetayData = $this->MySQL->select("/villa:*")->where("/;&&;id:=:".Request::get("villa_id"))->asc("/id")->execute(["fetch" => "first"], true);
+
+        $this->data["Detay"] = array(
+            "data" => $DetayData,
+            "attr" => $Villa->ozellikler($DetayData)
+        );
+
+        $this->data["VillaGaleri"] = $this->MySQL->select("/resimler")->where("/ref_id:=:".Request::get("villa_id"))->where("type:=:villa")->asc("id")->execute(["fetch" => "all"], true);
+
+        return $this->render();
+
+    }
+
+    public function galeri(){
+
+        $this->data["Resim"] = array();
+
+        $Resimler = $this->MySQL->select("/resimler")->asc("id")->execute();
+
+        for($i=0;$i<$Resimler->rowCount();$i++){
+
+            $this->data["Resim"][] = array(
+                "resim" => $Resimler->row($i)->get(),
+                "ref" => $Resimler->row($i)->col("type/ref_id")->select("{type}:*/id:=:ref_id")->execute(["fetch" => "first"], true)
+            );
+
+        }
+
+        return $this->render();
+
+    }
+
+    public function iletisim(){
 
         return $this->render();
 
@@ -60,9 +165,11 @@ class index extends Module {
 
     public function test(){
 
-        $a = "Foo moo boo tool foo";
-        $b = preg_match_all("/[A-Za-z]oo\b/i", $a, $c);
-        var_dump($b);
+        #$date = new Libraries\Date;
+
+        #var_dump($date->tarihFormatla("2014-11-26 12:26:00", "readable"));
+
+        var_dump(Libraries\Date::tarihFormatla("2014-11-26 12:26:00", "readable"));
 
     }
 

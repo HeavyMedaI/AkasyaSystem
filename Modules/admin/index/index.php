@@ -9,27 +9,57 @@
 namespace System\Modules;
 
 use System\Libraries\Request;
-
-//Request::load("Libraries/Spyc.php");
-
-Request::load("Libraries/Module.php");
-
 use System\Engines;
 use System\Libraries;
 
+Request::load("Libraries/Module.php");
+
 class index extends Module{
 
-    private $FireWall;
+    private $MySQL;
 
     public function __construct(){
 
+        $this->MySQL = (new Engines\MySQL())->connect([
+            "host" => __MySQL_HOST__,
+            "database" => __MySQL_DB__,
+            "user" => __MySQL_USER__,
+            "password" => __MySQL_PASS__
+        ]);
+
+        $this->MySQL->character("utf8");
+
+        if(!$this->MySQL->Status()){
+
+            exit($MySQL->ErrorHandler()->ErrorMessage());
+
+        }
+
+        $Config = $this->getSystemConfig("/config");
+
+        $this->data["config"]["title"] = $Config["project_name"];
+        $this->data["config"] = array_merge($this->data["config"], $Config["administrator"]);
+        $this->data["config"]["user_types"] = array(
+            0 => "Kullanıcı",
+            1 => "Yönetici"
+        );
+        $this->data["config"]["user_icons"] = array(
+            0 => null,
+            1 => "icon-securityalt-shieldalt"
+        );
 
 
     }
 
     public function index(){
 
-        echo "index:Hello World!";
+        $this->data["Profile"] = $this->MySQL->select("/users")->where("/username:=:".Libraries\Session::get("/session/login/username"))->where("/password:=:".Libraries\Session::get("/session/login/password"))->execute(["fetch" => "first"], true);
+
+        $ImageUploadedTime = date("Y-m-d H:i:s", filemtime("Modules/".$this->data["Profile"]->avatar));
+
+        $this->data["ImageUploadedTime"] = Libraries\Date::tarihFormatla($ImageUploadedTime, "readable");
+
+        return $this->render();
 
     }
 

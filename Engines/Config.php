@@ -17,12 +17,6 @@ class Config {
     private $Configrations;
     private $Private = FALSE;
 
-    public function __construct(){
-
-
-
-    }
-
     public function load($Config){
 
         $this->Configrations = \System\Libraries\Spyc::YAMLLoadString(\System\Libraries\Stream::read($Config));
@@ -49,7 +43,7 @@ class Config {
 
             //$this->Private = TRUE;
 
-            return $this->login();
+            $this->login();
 
         }
 
@@ -57,7 +51,9 @@ class Config {
 
             foreach($this->Configrations["load"] as $load){
 
-                Request::load($load);
+                //Request::load($load);
+
+                require_once $load;
 
             }
 
@@ -72,6 +68,8 @@ class Config {
             }
 
         }
+
+        return true;
 
     }
 
@@ -100,6 +98,23 @@ class Config {
     private function lock(){
 
          exit;
+
+    }
+
+    public function get($Config, $Path){
+
+        $Return = \System\Libraries\Spyc::YAMLLoadString(\System\Libraries\Stream::read($Config));
+
+        $Path = explode("/", ltrim($Path, "[/\#\:]"));
+
+        foreach ($Path as $loc) {
+
+            $Return = $Return[$loc];
+
+        }
+
+        return $Return;
+
 
     }
 

@@ -1,0 +1,257 @@
+<?php require_once "Modules/admin/layouts/head.html"; ?>
+<script src="../_assets/res/tinymce/tinymce.js"></script>
+<body>
+
+<div id="wrapper">
+
+    <?php require_once "Modules/admin/layouts/sidebar.html"; ?>
+
+<div id="content" class="dash-page">
+
+    <?php require_once "Modules/admin/layouts/top-bar.html"; ?>
+
+    <div class=" g12">
+        <div class="box g16">
+            <div class="content rows-pad-m form big-label label-pad-m">
+                <div class="row inp-cont">
+                    <label>Villa Adı</label>
+                    <input name="name" type="text">
+                    <input name="id" type="hidden">
+                </div>
+            </div>
+        </div>
+        <div id="text-editor" class="box g16 inp-row2">
+            <div class="header">Villa Açıklaması</div>
+            <div class="content">
+                <textarea name="description" id="wysiwyg">
+                    The quick brown wizard jumps over the toxic brewing dog.<br><br>
+                    The web developer can't think of any content to fill this box.<br><br><br>
+                    Text align left
+                    <p style="text-align: center;">Text align center</p>
+                    <p style="text-align: right;">Text align right</p>
+                    <strong>Bold text</strong><br><br>
+                    <span style="font-style: italic;">Italic Text</span><br><br>
+                    <span style="text-decoration: underline;">Underlined text</span><br><br>
+                    <span style="text-decoration: line-through;">Strikethrough text</span>
+                </textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="g4">
+        <div class="box g16">
+            <div class="header">
+                İşlemler
+                <div class="buttons right">
+                    <button style="border-radius: 3px 3px 3px 3px !important;" class="green kaydet"><span class="icon icon-ok icon-s no-mg"></span> &nbsp; Kaydet</button>
+                </div>
+            </div>
+            <div class="content rows-pad-m form big-label label-pad-m">
+                <div class="row inp-cont">
+                    <label>Yatak Sayısı</label>
+                    <select name="yatak_sayisi" class="required inset">
+                        <option selected disabled>Seçiniz</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="1">3</option>
+                        <option value="2">4</option>
+                        <option value="1">5+</option>
+                    </select>
+                </div>
+                <div class="row inp-cont">
+                    <label>Gecelik Fiyat</label>
+                    <input name="gecelik_fiyat" type="text" class="required g5 spinner number" placeholder="0.00">
+                </div>
+                <div class="row inp-cont">
+                    <label>Durumu</label>
+                    <div class="buttons btn-radio">
+                        <button name="durumu" value="1" class="pressed"><span class="icon icon-man-male"></span>Aktif</button>
+                        <button name="durumu" value="0"><span class="icon icon-woman-female"></span>Deaktif</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box g16">
+            <div class="header">Özellikler</div>
+            <div class="content rows-pad-m form big-label label-pad-m">
+                <div class="row inp-cont">
+                    <label>İnternet</label>
+                    <div class="ig4"><input name="wifi" value="1" type="checkbox" class="checkbox big" checked="checked"></div>
+                </div>
+                <div class="row inp-cont">
+                    <label>Havuz</label>
+                    <div class="ig4"><input name="havuz" value="1" type="checkbox" class="checkbox big"></div>
+                </div>
+                <div class="row inp-cont">
+                    <label>Uydu</label>
+                    <div class="ig4"><input name="uydu" value="1" type="checkbox" class="checkbox big" checked="checked"></div>
+                </div>
+                <div class="row inp-cont">
+                    <label>7/24 Sıcak Su</label>
+                    <div class="ig4"><input name="sicak_su" value="1" type="checkbox" class="checkbox big" checked="checked"></div>
+                </div>
+                <div class="row inp-cont">
+                    <label>LCD TV</label>
+                    <div class="ig4"><input name="lcd_tv" value="1" type="checkbox" class="checkbox big" checked="checked"></div>
+                </div>
+                <div class="row inp-cont">
+                    <label>Jakuzi</label>
+                    <div class="ig4"><input name="jakuzi" value="1" type="checkbox" class="checkbox big"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php require_once "Modules/admin/layouts/footer.html"; ?>
+
+</div>
+
+<!--MODAL WINDOWS-->
+
+<div class="modal-ov">
+
+    <div id="notif-mod" class="modal mini box modslideright">
+        <div class="header">
+            <span class="icon icon-subtractshape"></span>Notifications &amp; Alerts
+            <button class="mini close"><span class="icon icon-remove no-mg"></span></button>
+        </div>
+        <div class="mod-body">
+            <p class="alert warn">Low disk space remaining on partition E:/</p>
+            <p class="alert info">MySQL updated to newest version (v5.6)</p>
+            <p class="alert danger">Server #3 reporting high temperatures</p>
+        </div>
+    </div>
+
+    <div id="ctrl-set" class="modal box modslideupalt">
+        <div class="header"><span class="icon icon-cog"></span>Settings</div>
+        <div class="mod-body no-pad">
+            <div class="row ig8 bd-right"><label>Automatic Updates</label><input type="checkbox" class="checkbox big" checked></div>
+            <div class="row ig8"><label>Automatic Backup</label><input type="checkbox" class="checkbox big" checked></div>
+            <div class="row">
+                <label>Color Scheme</label>
+                <div id="color-scheme" class="buttons btn-radio">
+                    <button class="light gray pressed ig8"><span class="icon icon-brightnessfull"></span>Light</button>
+                    <button class="black ig8"><span class="icon icon-brightness"></span>Dark</button>
+                </div>
+            </div>
+            <div id="sidebar-pos-row" class="row">
+                <label>Sidebar Position</label>
+                <div id="sidebar-pos" class="buttons btn-radio">
+                    <button class="mini left pressed ig4">Left</button>
+                    <button class="mini top ig4">Top</button>
+                    <button class="mini right ig4">Right</button>
+                    <button class="mini bottom ig4">Bottom</button>
+                </div>
+            </div>
+            <div class="row">
+                <label>Sidebar Color</label>
+                <div class="inp-cont no-pad">
+                    <input id="sidebar-color" value="#5b5a5a" data-defaultValue="#5b5a5a" placeholder="#5b5a5a">
+                </div>
+            </div>
+            <div class="row">
+                <label>Header Color</label>
+                <div class="inp-cont no-pad">
+                    <input id="header-color" placeholder="Transparent">
+                </div>
+            </div>
+        </div>
+        <div class="mod-act">
+            <button id="res-set" class="red"><span class="icon icon-refresh"></span>Reset settings</button>
+            <button class="close green"><span class="icon icon-ok"></span>Close</button>
+        </div>
+    </div>
+
+</div>
+
+</div><!--END WRAPPER-->
+
+<div id="load"><div id="spinner"></div></div>
+
+<!---jQuery Code-->
+<script type="text/javascript">
+    $.fn.loadfns( function() { // PUT FUNCTIONS TO BE EXECUTED ON DOCUMENT READY HERE
+        $('.spark').sparkline('html', {
+            type: 'bar', height: '40px', barSpacing: 4, barColor: '#89A824', negBarColor: '#d6692f'
+        });
+        $('#intro').nanoScroller();
+        $("#table").tablesorter();
+    });
+
+    $(function(){
+
+        tinymce.init({
+            selector: "#wysiwyg",
+            plugins: [
+                "autolink lists link image charmap print preview anchor",
+                "searchreplace code",
+                "insertdatetime media table contextmenu paste"
+            ],
+            toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image"
+        });
+
+        $(".kaydet").click(function(){
+
+            var This = $(this);
+
+            $(this).attr("disabled","disabled").find(".icon").removeClass("icon-ok").addClass("icon-circleselection spinning");
+
+            var Data = $("input[type='text'], input[type='hidden'], input[type='checkbox']:checked").serialize();
+
+            $.post("set", Data, function(e){
+
+                var dataJSON = eval(e);
+
+                if(dataJSON.response){
+
+                    App(".ust-kutu .bildirim-alani").notif({
+                        "message": {
+                            "header": "Kayıt işlemi başarılı.",
+                            "subtext": "Kaydedildi."
+                        },
+                        "icon": {
+                            "icon": "ok-sign",
+                            "color": "green",
+                            "size": null
+                        },
+                        "callBy": $(this),
+                        "callback": function(This){
+
+                            This.removeAttr("disabled").find(".icon").removeClass("icon-circleselection spinning").addClass("icon-ok");
+
+                        }
+                    });
+
+                }else{
+
+                    App(".ust-kutu .bildirim-alani").notif({
+                        "message": {
+                            "header": "Hata: Kayıt işlemi gerçekleştirilemedi.",
+                            "subtext": dataJSON.message
+                        },
+                        "icon": {
+                            "icon": "lightningalt glow",
+                            "color": "red",
+                            "size": null
+                        },
+                        "callBy": This,
+                        "callback": function(This){
+
+                            This.removeAttr("disabled").find(".icon").removeClass("icon-circleselection spinning").addClass("icon-ok");
+
+                        }
+                    });
+
+                }
+
+            });
+
+        });
+
+    });
+
+</script>
+
+<?php require_once "Modules/admin/layouts/scripts.html"; ?>
+</body>
+</html>

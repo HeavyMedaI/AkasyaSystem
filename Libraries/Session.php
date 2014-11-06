@@ -90,7 +90,7 @@ class Session {
 
         foreach($Tree as $Session){
 
-             $Return = @$Return[$Session]["value"];
+             $Return = @$Return[$Session];
 
         }
 
@@ -109,13 +109,7 @@ class Session {
         if(is_array($Data)){
 
             $Data = array(
-                "session" => array(
-                    "value" => $Data,
-                    "path" => "/",
-                    "expire" => null
-                ),
-                "path" => "/",
-                "expire" => null
+                "session" => $Data
             );
 
         }

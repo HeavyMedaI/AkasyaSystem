@@ -1,0 +1,15 @@
+
+session:
+    value:
+        login:
+            value:
+                set:
+                    value: false
+                    path: /
+                    expire: null
+            path: /
+            expire: null
+    path: /
+    expire: null
+path: /
+expire: null

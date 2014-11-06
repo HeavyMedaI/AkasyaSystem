@@ -18,7 +18,13 @@ class Request {
 
     }
 
-    public static function get($Index){
+    public static function get($Index=null){
+
+        if($Index==null){
+
+            return $_GET;
+
+        }
 
         if(isset($_GET[$Index])&&!empty($_GET[$Index])){
 
@@ -26,11 +32,29 @@ class Request {
 
         }
 
-        return FALSE;
+        return false;
 
     }
 
-    public static function post($Index){
+    public static function isGet(){
+
+        if((isset($_GET[$Index])&&!empty($_GET[$Index]))&&($_GET[$Index]!=null&&strlen($_GET[$Index])>=1)){
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    public static function post($Index=null){
+
+        if($Index==null){
+
+            return $_POST;
+
+        }
 
         if(isset($_POST[$Index])&&!empty($_POST[$Index])){
 
@@ -38,7 +62,19 @@ class Request {
 
         }
 
-        return FALSE;
+        return false;
+
+    }
+
+    public static function isPost(){
+
+        if((isset($_POST[$Index])&&!empty($_POST[$Index]))&&($_POST[$Index]!=null&&strlen($_POST[$Index])>=1)){
+
+            return true;
+
+        }
+
+        return false;
 
     }
 
@@ -48,7 +84,7 @@ class Request {
 
             require_once $Path;
 
-            return TRUE;
+            return true;
 
         }
 
@@ -58,9 +94,11 @@ class Request {
 
     public static function login($Path = NULL){
 
-        $Path = ($Path) ? $Path : Request::get("app");
+        #$Path = ($Path) ? $Path : Request::get("app");
 
-        Response::render(array(), $Path."/login/index");
+        $Path = ($Path) ? $Path : "admin";
+
+        Response::render(array("Path" => $Path), $Path."/login/index");
 
         exit;
 
@@ -87,6 +125,12 @@ class Request {
     public static function module($Module = NULL){
 
         Libraries\Session::start();
+
+        if(Request::get("app")=="default"){
+
+            $_GET["app"] = __DEFAULT_APP__;
+
+        }
 
         if(!Request::load("Modules/".Request::get("app")."/".Request::get("module")."/".Request::get("module").__EXTENSION__)){
 
@@ -181,7 +225,7 @@ class Request {
 
         }
 
-        return TRUE;
+        return true;
 
     }
 

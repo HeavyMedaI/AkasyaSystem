@@ -12,9 +12,10 @@ namespace System\Engines;
 class MySQL {
 
     const SELECT    = 1;
-    const UPDATE    = 2;
-    const DELETE    = 3;
-    const WHERE     = 4;
+    const INSERT    = 2;
+    const UPDATE    = 3;
+    const DELETE    = 4;
+    const WHERE     = 5;
 
     const FETCH_LAZY = 1;
     const FETCH_ASSOC    = 2;
@@ -39,12 +40,12 @@ class MySQL {
 
     }
 
-    public function connect(Array $Config){
+    public function connect(Array $Config = null){
 
-        $mysql_server = (@$Config["host"]) ? $Config["host"] : $Config["server"];
-        $mysql_database = (@$Config["db"]) ? $Config["db"] : $Config["database"];
-        $mysql_user = (@$Config["user"]) ? $Config["user"] : $Config["username"];
-        $mysql_password = (@$Config["pass"]) ? $Config["pass"] : $Config["password"];
+        $mysql_server = (@$Config["host"]) ? $Config["host"] : __MySQL_HOST__;
+        $mysql_user = (@$Config["user"]) ? $Config["user"] : __MySQL_USER__;
+        $mysql_password = (@$Config["pass"]) ? $Config["pass"] : __MySQL_PASS__;
+        $mysql_database = (@$Config["db"]) ? $Config["db"] : __MySQL_DB__;
 
         try{
 
@@ -64,6 +65,12 @@ class MySQL {
 
     }
 
+    public function query($QueryStatement){
+
+        return $this->Conn->query($QueryStatement);
+
+    }
+
     public function table($Path){
 
         return new Table($this->Conn, ltrim($Path, "[/\#\$\:]"));
@@ -76,12 +83,18 @@ class MySQL {
 
     }
 
+    public function insert($Path){
+
+        return new Insert($this->Conn, $Path);
+
+    }
+
+    /**
+     * @param $CharSet: MySQL Connection´s OutPut Character Coding ex: utf8
+     */
     public function character($CharSet){
 
-        //$this->Conn->query("SET CHARACTER SET {$CharSet}");
-
-        $this->Conn->query("character_set_results = '{$CharSet}', character_set_client = '{$CharSet}', character_set_connection = '{$CharSet}', character_set_database = '{$CharSet}', character_set_server = '{$CharSet}'");
-
+        $this->Conn->exec("set names {$CharSet}");
     }
 
     /*private function ErrorHandler(\PDOException $Error){
@@ -152,88 +165,17 @@ class SqlMaker{
 
         if(is_string($this->Path)){
 
-            return $this->String();
+            return $this->StringSet();
+
+        }else if(is_array($this->Path)){
+
+            return $this->ArraySet();
 
         }
 
     }
 
-    public function add($Path, $Type = null){
-
-        if($Type!=null){ $this->QueryType = $Type; }
-
-        $this->LastQueryString = ltrim($Path, "[/\#\$\:]");
-
-        preg_match("/^;(&|&&|\||\|\|);(.*)$/i", ltrim($Path, "[/\#\$\:]"), $Split);
-
-        $Mark = "/";
-
-        if($this->Set){
-
-            if(count($Split)>=1){
-
-                $Mark = ";{$Split[1]};";
-
-            }else{
-
-                $Mark = ";&&;";
-
-            }
-
-        }
-
-        $RunableString = preg_replace("/^;(&|&&|\||\|\|);/i", null, ltrim($Path, "[/\#\$\:]"));
-
-        $this->Path .= "{$Mark}{$RunableString}";
-
-        return $this->String();
-
-    }
-
-    private function StringS(){
-
-        $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
-
-        if($this->QueryType==1){
-
-            $From = explode(":", $Path[0]);
-
-            $Columns = ($From[1]) ? $From[1] : "* ";
-
-            $this->LastSqlSet["QueryString"] .= "SELECT ".$Columns;
-
-            $this->LastSqlSet["QueryString"] .=  "FROM ".$From[0]." ";
-
-            #$PregSplitPattern = "/;([&]|[\|]);/i";
-
-            $String = preg_split("/;/i", $Path[1]);
-
-            $Blocks = null;
-
-            for($i=0;$i<count($String);$i++){
-
-                if($i%2<=0){
-
-                    $Blocks .= "( ";
-
-                    $Wheres = str_replace(array("&&","||"), array(" AND ", " OR "), $String[$i]);
-
-                    $Blocks .= ") ";
-
-                }else{
-
-                    $Blocks .= $String[$i]." ";
-
-                }
-
-            }
-
-        }
-
-
-    }
-
-    private  function String($Path = null, $Set = true){
+    private  function StringSet($Path = null, $Set = true){
 
         $this->LastSqlSet["QueryString"] = null;
 
@@ -245,23 +187,25 @@ class SqlMaker{
 
         }
 
-        $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
-
-        if(count($Path)>=2){
-
-            $this->Set = true;
-
-        }
-
         $Table = null;
 
         $Columns = null;
 
         $Blocks = null;
 
-        $Values = array();
+        $Values = null;
 
-        if($this->QueryType==1){
+        if($this->QueryType==MySQL::SELECT){
+
+            $Values = array();
+
+            $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
+
+            if(count($Path)>=2){
+
+                $this->Set = true;
+
+            }
 
             $Blocks .= "( ";
 
@@ -269,7 +213,7 @@ class SqlMaker{
 
             $Table = $From[0];
 
-            $Columns = ($From[1]) ? $From[1]." " : "* ";
+            $Columns = (@$From[1]) ? $From[1]." " : "* ";
 
             $this->LastSqlSet["QueryString"] .= "SELECT ".$Columns;
 
@@ -368,27 +312,134 @@ class SqlMaker{
 
             $Blocks .= ") ";
 
+            $WHERE = null;
+
+            if(strpos($this->LastSqlSet["QueryString"], "WHERE")){
+
+                $WHERE = "AND ".$Blocks;
+
+            }else{
+
+                $WHERE = "WHERE ".$Blocks;
+
+            }
+
+            $this->LastSqlSet["QueryString"] .= $WHERE;
+
+            $this->LastSqlSet["QueryValues"] = $Values;
+
         }
 
+        if($this->QueryType==MySQL::INSERT){
+
+            $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
+
+            $Target = $Path[0];
+
+            $this->LastSqlSet["QueryString"] .= "INSERT INTO ".$Target." ";
+
+            if((count($Path)==1||!isset($Path[1]))||(empty($Path[1])||strlen($Path[1])<=0)){
+
+                return $this;
+
+            }
+
+            $Packages = explode(";", $Path[1]);
+
+            foreach($Packages as $Package){
+
+                if($Package == null || empty($Package)){
+
+                    continue;
+
+                }
+
+                $Set = explode("::", $Package);
+
+                $Columns .= "`{$Set[0]}`, ";
+
+                $Values .= ":{$Set[0]},";
+
+                $this->LastSqlSet["QueryValues"][":".$Set[0]] = $Set[1];
+
+            }
+
+            $Columns = rtrim($Columns, ", ");
+
+            $Values = rtrim($Values, ", ");
+
+            $this->LastSqlSet["QueryString"] .= "({$Columns}) VALUES ({$Values})";
+
+        }
         //$this->LastSqlSet["QueryString"] = "SELECT {$Columns} FROM `{$Table}` WHERE ".$Blocks;
 
-        $WHERE = null;
+        return $this;
 
-        if(strpos($this->LastSqlSet["QueryString"], "WHERE")){
+    }
 
-            $WHERE = "AND ".$Blocks;
+    public function add($Path, $Type = null){
 
-        }else{
+        if($Type!=null){ $this->QueryType = $Type; }
 
-            $WHERE = "WHERE ".$Blocks;
+        if($this->QueryType == MySQL::INSERT){
+
+            if(is_string($this->Path)){
+
+                $this->Path .= "/".ltrim($Path, "[/\#\$\:]");
+
+                return $this->StringSet();
+
+            }else if(is_array($Path)){
+
+                $this->Path = array_merge($this->Path, $Path);
+
+                return $this->ArraySet();
+
+            }
 
         }
 
-        $this->LastSqlSet["QueryString"] .= $WHERE;
+        $this->LastQueryString = ltrim($Path, "[/\#\$\:]");
 
-        $this->LastSqlSet["QueryValues"] = $Values;
+        preg_match("/^;(&|&&|\||\|\|);(.*)$/i", ltrim($Path, "[/\#\$\:]"), $Split);
 
-        return $this;
+        $Mark = "/";
+
+        if($this->Set){
+
+            if(count($Split)>=1){
+
+                $Mark = ";{$Split[1]};";
+
+            }else{
+
+                $Mark = ";&&;";
+
+            }
+
+        }
+
+        $RunableString = preg_replace("/^;(&|&&|\||\|\|);/i", null, ltrim($Path, "[/\#\$\:]"));
+
+        $this->Path .= "{$Mark}{$RunableString}";
+
+        return $this->StringSet();
+
+    }
+
+    private function ArraySet($Path = null, $Set = true){
+
+        if($this->QueryType==MySQL::SELECT){   # String Type
+
+
+
+        }
+
+        if($this->QueryType==MySQL::INSERT){
+
+
+
+        }
 
     }
 
@@ -398,13 +449,15 @@ class SqlMaker{
 
         if($Type=="string"){
 
+            $VarKey = substr(md5(date("Y-m-d-H-i-s-").microtime().":".rand(9, 99999)), 3, 9);
+
             preg_match("/:(.*):/i", $Data, $Split);
 
             $Parse = explode($Split[0], $Data);
 
-            $Return["string"] = "`{$Parse[0]}` {$Split[1]} :".$Parse[0];
+            $Return["string"] = "`{$Parse[0]}` {$Split[1]} :".$Parse[0]."_".$VarKey;
 
-            $Return["value"] = array(":{$Parse[0]}" => $Parse[1]);
+            $Return["value"] = array(":{$Parse[0]}_{$VarKey}" => $Parse[1]);
 
             return $Return;
 
@@ -438,6 +491,117 @@ class SqlMaker{
 
 
     }*/
+
+}
+
+class Table{
+
+    private $Conn;
+    private $Status = false;
+    private $Table;
+    private $LastPrepared;
+    private $LastQuery;
+    private $LastSql = array();
+    private $ErrorHandler;
+
+    public function __construct(\PDO $Connection, $Table){
+
+        $this->Conn = $Connection;
+
+        $this->Table = $Table;
+
+    }
+
+    public function in(Array $Path){
+
+        $Select = "SELECT * FROM {$this->Table} WHERE ";
+
+        $Where = null;
+
+        $Values = array();
+
+        foreach ($Path as $Column => $Value){
+
+            $VAR = ltrim($Column, "[/\#\$\:]");
+
+            $Where .= "`".$VAR."` = :".$VAR." AND ";
+
+            $Values[":".$VAR] = $Value;
+
+        }
+
+        $Where = rtrim($Where, " AND ");
+
+        $this->LastSql = array(
+            "sql" => $Select.$Where,
+            "values" => $Values
+        );
+
+        $this->LastQuery = $this->Conn->prepare($Select.$Where, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+
+        $this->LastPrepared = $this->LastQuery;
+
+        try{
+
+            $this->LastQuery->execute($Values);
+
+            if( $this->LastQuery->rowCount()>=1){
+
+                $this->Status = true;
+
+                return true;
+
+            }else{
+
+                $this->Status = false;
+
+                return false;
+
+            }
+
+        }catch (\PDOException $Error){
+
+            $this->ErrorHandler = new MySQLErrorHandler($Error);
+
+            $this->Status = false;
+
+            return false;
+
+        }
+
+        return $this;
+
+    }
+
+    public function LastQuery(){
+
+        return $this->LastQuery;
+
+    }
+
+    public function LastSql(){
+
+        return $this->LastSql;
+
+    }
+
+    public function LastPrepared(){
+
+        return $this->LastPrepared;
+
+    }
+
+    public function Status($Obj = null){
+
+        return $this->Status;
+
+    }
+
+    public function ErrorHandler($Obj = null){
+
+        return $this->ErrorHandler;
+
+    }
 
 }
 
@@ -559,13 +723,11 @@ class Select{
 
     }
 
-    public function execute(Array $Settings = null, $ReturnFetch = true){
+    public function execute(Array $Settings = null, $ReturnFetch = false){
 
-        if(!isset($Settings["fetch"])){
+        $Settings["return"] = (@$Settings["return"]) ? @$Settings["return"] : MySQL::FETCH_OBJ;
 
-            $Settings["fetch"] = MySQL::FETCH_OBJ;
-
-        }
+        $Settings["fetch"] = (@$Settings["fetch"]) ? strtolower(@$Settings["fetch"]) : "all";
 
         try{
 
@@ -575,15 +737,15 @@ class Select{
 
             $Selected = $this->LastQuery;
 
-            if(!$ReturnFetch){
+            if($ReturnFetch){
 
-                $this->LastFetch = $this->LastQuery->fetch($Settings["fetch"]);
+                $this->LastFetch = ($Settings["fetch"]=="first") ? $this->LastQuery->fetch($Settings["return"]) : $this->LastQuery->fetchAll($Settings["return"]);
 
                 return $this->LastFetch;
 
             }
 
-            return new Selected($this->Conn, $Selected->fetchAll(MySQL::FETCH_BOTH));
+            return new Selected($this->Conn, $Selected->fetchAll(MySQL::FETCH_OBJ));
 
         }catch (\PDOException $Error){
 
@@ -649,6 +811,12 @@ class Select{
 
     }
 
+    public function QueryValues($Obj = null){
+
+        return $this->QueryValues;
+
+    }
+
     public function ErrorHandler($Obj = null){
 
         return $this->ErrorHandler;
@@ -690,6 +858,12 @@ class Selected{
 
     }
 
+    public function get(){
+
+        return $this->Source;
+
+    }
+
 }
 
 class Row{
@@ -703,7 +877,7 @@ class Row{
     private $SelectedCol;
     private $ErrorHandler;
 
-    public function __construct(\PDO $Connection, Array $Source){
+    public function __construct(\PDO $Connection, $Source){
 
         $this->Conn = $Connection;
 
@@ -736,6 +910,12 @@ class Row{
         }
 
         return new Column($this->Conn, $Cols);
+
+    }
+
+    public function get(){
+
+        return $this->Source;
 
     }
 
@@ -774,19 +954,37 @@ class Column{
 
         $Path = explode("/", ltrim($Path, "[/\#\$\:]"));
 
+        $SelectedPath = $Path[0];
+
+        if(strpos($Path[0], "{")>-1&&strpos($Path[0], "}")>-1){
+
+            $Path[0] = str_replace(array("{","}"), null, $Path[0]);
+
+            $Path[0] = trim($Path[0]);
+
+            $Path[0] = explode(":", $Path[0]);
+
+            $Path[0][0] = $this->Source[$Path[0][0]];
+
+        }
+
+        $Path[0] = explode(":", $Path[0]);
+
+        $Path[0][1] = (@$Path[0][1]) ? $Path[0][1] : "*";
+
         if(count($Path)>1){
 
             foreach ($this->Source as $Col => $Val) {
 
                 //$Path[1] = preg_replace("/(.*):(.*):".$Col."(.*)/i", "$0 :: $1:$2:".$Val."$3", $Path[1]);
 
-                $Path = $Path[0]."/".str_replace(":".$Col, ":".$Val, $Path[1]);
+                $Path[1] = str_replace(":".$Col, ":".$Val, $Path[1]);
 
             }
 
         }
 
-        var_dump($Path);
+        $Path = $Path[0][0].":".$Path[0][1]."/".$Path[1];
 
         return new Select($this->Conn, $Path);
 
@@ -800,78 +998,98 @@ class Column{
 
     }
 
+    public function get(){
+
+        return implode(" ", $this->Source);
+
+    }
+
     public function dump(){
 
         var_dump($this->Source);
 
     }
 
-}
+    public function __toString(){
 
-class Table{
-
-    private $Conn;
-    private $Status = false;
-    private $Table;
-    private $LastPrepared;
-    private $LastQuery;
-    private $LastSql = array();
-    private $ErrorHandler;
-
-    public function __construct(\PDO $Connection, $Table){
-
-        $this->Conn = $Connection;
-
-        $this->Table = $Table;
+        return implode(" ", $this->Source);
 
     }
 
-    public function in(Array $Path){
+}
 
-        $Select = "SELECT * FROM {$this->Table} WHERE ";
+class Insert{
 
-        $Where = null;
+    private $Conn;
+    private $SqlMaker;
+    private $Status;
+    private $QueryString;
+    private $QueryValues = array();
+    private $LastSql = array();
+    private $LastQuery;
+    #private $LastFetch;
+    private $ErrorHandler;
 
-        $Values = array();
+    public function __construct(\PDO $Conn, $Path){
 
-        foreach ($Path as $Column => $Value){
+        $this->Conn = $Conn;
 
-            $VAR = ltrim($Column, "[/\#\$\:]");
+        $this->SqlMaker = new SqlMaker(ltrim($Path, "[/\#\$\:]"), MySQL::INSERT);
 
-            $Where .= "`".$VAR."` = :".$VAR." AND ";
+        $this->QueryString = $this->SqlMaker->SqlSet()["QueryString"];
 
-            $Values[":".$VAR] = $Value;
+        $this->QueryValues = $this->SqlMaker->SqlSet()["QueryValues"];
 
-        }
+    }
 
-        $Where = rtrim($Where, " AND ");
+    public function data($Path){
 
-        $this->LastSql = array(
-            "sql" => $Select.$Where,
-            "values" => $Values
-        );
+        $this->SqlMaker->add($Path);
 
-        $this->LastQuery = $this->Conn->prepare($Select.$Where, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+        $this->QueryString = $this->SqlMaker->SqlSet()["QueryString"];
 
-        $this->LastPrepared = $this->LastQuery;
+        $this->QueryValues = $this->SqlMaker->SqlSet()["QueryValues"];
+
+        return $this;
+
+    }
+
+    /**
+     * @param array $Settings
+     * @param bool $ReturnFetch
+     * @return $this|bool
+     */
+    public function execute(Array $Settings = null, $ReturnFetch = false){
+
+        $Settings["return"] = (@$Settings["return"]) ? @$Settings["return"] : MySQL::FETCH_OBJ;
+
+        $Settings["fetch"] = (@$Settings["fetch"]) ? strtolower(@$Settings["fetch"]) : "all";
 
         try{
 
-            $this->LastQuery->execute($Values);
+            $this->LastQuery = $this->Conn->prepare($this->QueryString, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
 
-            if( $this->LastQuery->rowCount()>=1){
+            $Execute = $this->LastQuery->execute($this->QueryValues);
 
-                $this->Status = true;
+            if($this->LastQuery->errorCode()!="00000"){
 
-                return true;
-
-            }else{
-
-                $this->Status = false;
-
-                return false;
+                throw new \PDOException;
 
             }
+
+            return $Execute;
+
+            /*$Selected = $this->LastQuery;
+
+            if($ReturnFetch){
+
+                $this->LastFetch = ($Settings["fetch"]=="first") ? $this->LastQuery->fetch($Settings["return"]) : $this->LastQuery->fetchAll($Settings["return"]);
+
+                return $this->LastFetch;
+
+            }
+
+            return new Selected($this->Conn, $Selected->fetchAll(MySQL::FETCH_OBJ));*/
 
         }catch (\PDOException $Error){
 
@@ -879,7 +1097,7 @@ class Table{
 
             $this->Status = false;
 
-            return false;
+            return $this;
 
         }
 
@@ -887,27 +1105,27 @@ class Table{
 
     }
 
-    public function LastQuery(){
-
-        return $this->LastQuery;
-
-    }
-
-    public function LastSql(){
-
-        return $this->LastSql;
-
-    }
-
-    public function LastPrepared(){
-
-        return $this->LastPrepared;
-
-    }
-
     public function Status($Obj = null){
 
         return $this->Status;
+
+    }
+
+    /*public function LastFetch($Obj = null){
+
+        return $this->LastFetch;
+
+    }*/
+
+    public function QueryString($Obj = null){
+
+        return $this->QueryString;
+
+    }
+
+    public function QueryValues($Obj = null){
+
+        return $this->QueryValues;
 
     }
 
@@ -927,7 +1145,7 @@ class MySQLErrorHandler{
     private $ErrInfo;
     private $ErrorMessage;
 
-    private function __construct(\PDOException $Error){
+    public function __construct(\PDOException $Error){
 
         $this->Err = $Error;
 

@@ -1,0 +1,98 @@
+<?php require_once "Modules/villa/layouts/head.html"; ?>
+<body>
+
+<?php require_once "Modules/villa/layouts/top-bar.html"; ?>
+
+<?php require_once "Modules/villa/layouts/top-menu.html"; ?>
+
+<!-- Parallax Effect -->
+<script type="text/javascript">$(document).ready(function(){$('#parallax-pagetitle').parallax("50%", -0.55);});</script>
+
+<section class="parallax-effect">
+  <div id="parallax-pagetitle" style="background-image: url(./_assets/images/parallax/1900x911.gif);">
+    <div class="color-overlay"> 
+      <!-- Page title -->
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <ol class="breadcrumb">
+              <li><a href="index.html">Ana Sayfa</a></li>
+              <li class="active">Villalar</li>
+            </ol>
+            <h1>Villalar</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Filter -->
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <ul class="nav nav-pills" id="filters">
+        <li class="active"><a href="#" data-filter="*">Hepsi</a></li>
+        <!--<li><a href="#" data-filter=".single">Single Room</a></li>
+        <li><a href="#" data-filter=".double">Double Room</a></li>
+        <li><a href="#" data-filter=".executive">Executive Room</a></li>
+        <li><a href="#" data-filter=".apartment">Apartment</a></li>-->
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Rooms -->
+<section class="rooms mt100">
+  <div class="container">
+    <div class="row room-list fadeIn appear"> 
+      <?php for($i=0;$i<count($Villa);$i++){ ?>
+        <div class="col-sm-4 single">
+            <div class="room-thumb"> <img src="<?=$Villa[$i]["data"]->thumbnail;?>" alt="room 1" class="img-responsive" />
+                <div class="mask">
+                    <div class="main">
+                        <h5><?=$Villa[$i]["data"]->name;?></h5>
+                        <div class="price">&euro; <?=$Villa[$i]["data"]->gecelik_fiyat;?><span>a night</span></div>
+                    </div>
+                    <div class="content">
+                        <p><?=$Villa[$i]["data"]->description;?></p>
+                        <div class="row">
+                            <?php
+
+                                echo '<div class="col-xs-6">';
+                                echo '<ul class="list-unstyled">';
+
+                                for($x=0;$x<count($Villa[$i]["attr"]);$x++){
+
+                                    echo '<li><i class="fa fa-check-circle"></i> '.$Villa[$i]["attr"][$x].'</li>';
+
+                                    if(@((count($Villa[$i]["attr"])/@($x+1))==2.00)&&@((count($Villa[$i]["attr"])%@($x+1))==0)){
+
+                                        $s = count($Villa[$i]['attr'])%($x+1);
+
+                                        echo "</ul></div>";
+
+                                        echo '<div class="col-xs-6 '.$s.'">';
+                                        echo '<ul class="list-unstyled">';
+
+                                    }
+
+                                }
+
+                                echo "</ul></div>";
+
+                            ?>
+                        </div>
+                        <a href="detay?villa_id=<?=$Villa[$i]["data"]->id;?>" class="btn btn-primary btn-block">Detaylı İncele</a> </div>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+    </div>
+  </div>
+</section>
+
+<?php require_once "Modules/villa/layouts/footer.html"; ?>
+
+</body>
+</html>

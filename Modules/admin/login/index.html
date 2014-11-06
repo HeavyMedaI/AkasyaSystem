@@ -1,6 +1,27 @@
-<?php
-  \System\Libraries\Request::snapshot("Modules/admin/layouts/head.html");
-?>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Basic System - <?=$Path;?>istrator Panel</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1"/>
+    <link rel="shortcut icon" href="favicon.png">
+    <!---CSS Files-->
+    <link rel="stylesheet" href="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/css/core.css">
+    <link rel="stylesheet" href="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/css/style.css">
+    <link rel="stylesheet" href="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/css/ui.css">
+    <link rel="stylesheet" href="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/css/inputs.css">
+    <link rel="stylesheet" href="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/css/anims.css">
+    <link rel="stylesheet" href="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/css/icons.css">
+    <link rel="stylesheet" href="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/css/global.css">
+    <link rel="stylesheet" href="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/css/login.css">
+    <!---jQuery Files-->
+    <script src="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/js/jquery.js"></script>
+    <script src="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/js/jquery-ui.js"></script>
+    <script src="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/js/functions.js"></script>
+    <script src="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/js/inputs.js"></script>
+    <script src="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/js/sparkline.js"></script>
+    <script src="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/js/flot.js"></script>
+</head>
 <body>
 
 	<div id="wrapper">
@@ -13,17 +34,9 @@
 
 					<div id="login-user">
 						<div class="icon-user"><span class="arrow">"</span></div>
-						<input type="text" id="username" class="login-input required" placeholder="Username" value="novalex" autocomplete="off">
+						<input type="text" id="username" class="login-input required" placeholder="E-posta" value="" autocomplete="off">
 						<div id="user-select">
-							<ul class="grad2">
-								<li class="sel">
-									<img src="_assets/img/avatars/alex.jpg" alt="User avatar">
-									<div class="av-overlay"></div><span>admin</span></li>
-								<li><img src="_assets/img/avatars/michael.jpg" alt="User avatar">
-									<div class="av-overlay"></div><span>m1chael</span></li>
-								<li><img src="_assets/img/avatars/johnny.jpg" alt="User avatar">
-									<div class="av-overlay"></div><span>Johnny 1337</span></li>
-							</ul>
+							<ul class="grad2"></ul>
 						</div>
 
 						<div id="register">
@@ -36,12 +49,12 @@
 					<div id="login-pass">
 						<span class="icon-securityalt-shieldalt"></span>
                         <span id="forgot-psw" style="display: none">Unuttunuz mu?</span>
-						<input type="password" id="password" class="login-input required passwf" placeholder="Password">
+						<input type="password" id="password" class="login-input required passwf" placeholder="Parola">
 					</div>
 
 				</div>
 
-				<div id="avatar"><img src="_assets/img/avatars/alex.jpg" alt="Selected user avatar"><div id="av-overlay"></div></div>
+				<div id="avatar"><img src="<?=__ROOT_DIR__;?><?=$Path;?>/_assets/img/avatars/alex.jpg" alt="Selected user avatar"><div id="av-overlay"></div></div>
 
 				<button id="login-btn" type="submit" class="button submit">Giriş Yap</button>
 
@@ -84,6 +97,20 @@
 
     $(function(){
 
+        var RootDir = "<?=__ROOT_DIR__;?>";
+
+        $.post("<?=__SESSION_APP__;?>index/getUsers", {}, function(e){
+
+            $(e).each(function(i,v){
+
+                var ImageSrc = RootDir + v.avatar || RootDir + "<?=$Path;?>/_assets/img/avatars/alex.jpg";
+
+                $("#user-select ul").append('<li class="sel"><img src="' + ImageSrc + '" alt="' + v.firstname + ' ' + v.lastname + ' title="' + v.firstname + ' ' + v.lastname + '"><div class="av-overlay"></div><span>' + v.username + '</span></li>')
+
+            });
+
+        });
+
         $("#login-btn.submit").click(function(e){
 
             e.preventDefault();
@@ -93,7 +120,7 @@
             var username = $('#username').val();
             var password = $('#password').val();
 
-            $.post("<?=__APP_DIR__;?>session/setLogin", { username: username, password: password }, function(res){
+            $.post("<?=__SESSION_APP__;?>index/setLogin", { username: username, password: password }, function(res){
 
                 var dataJSON = eval(res);
 
@@ -116,7 +143,7 @@
                 var username = $('#username');
                 var password = $('#password');
 
-                $.post("<?=__APP_DIR__;?>session/setLogin", { username: username, password: password }, function(res){
+                $.post("<?=__SESSION_APP__;?>index/setLogin", { username: username, password: password }, function(res){
 
                     var dataJSON = eval(res);
 
@@ -184,7 +211,7 @@
         };
     });
 
-    var users = ["admin","m1chael","Johnny 1337"];
+    var users = ["<?=$Path;?>","m1chael","Johnny 1337"];
     var username = $('#username');
     var typeDelay;
     $(username).keyup(function(){
@@ -197,7 +224,7 @@
     	var usrval = username.val();
     	    usrlen = usrval.length;
 
-        $.post("<?=__APP_DIR__;?>session/isUser", { username: usrval }).done(function(e){
+        $.post("<?=__SESSION_APP__;?>index/isUser", { username: usrval }).done(function(e){
 
             var dataJSON = eval(e);
 

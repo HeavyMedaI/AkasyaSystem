@@ -6,6 +6,10 @@ error_reporting(E_ALL);
 
 const __EXTENSION__ = ".php";
 const __PROJECT_NAME__ = "AkasyaWeb";
+const __ROOT_DIR__ = "/Projects/AkasyaSystem/";
+const __APPLICATIONS_DIR__ = "/Projects/AkasyaSystem/Modules/";
+const __DEFAULT_APP__ = "villa";
+const __SESSION_APP__ = "/Projects/AkasyaSystem/session/";
 
 ## MySQL Config ##
 

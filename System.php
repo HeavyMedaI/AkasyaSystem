@@ -27,3 +27,4 @@ Request::load("scripts.php");
 }*/
 
 Request::module("\\System\\Modules\\".Request::get("module")."/".Request::get("command"));
+

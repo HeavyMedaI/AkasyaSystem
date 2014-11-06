@@ -1,0 +1,83 @@
+<?php require_once "Modules/villa/layouts/head.html"; ?>
+<body>
+
+<?php require_once "Modules/villa/layouts/top-bar.html"; ?>
+
+<?php require_once "Modules/villa/layouts/top-menu.html"; ?>
+<!-- Parallax Effect -->
+<script type="text/javascript">$(document).ready(function(){$('#parallax-pagetitle').parallax("50%", -0.55);});</script>
+
+<section class="parallax-effect">
+  <div id="parallax-pagetitle" style="background-image: url(./_assets/images/parallax/1900x911.gif);">
+    <div class="color-overlay"> 
+      <!-- Page title -->
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <ol class="breadcrumb">
+              <li><a href="index.html">Ana Sayfa</a></li>
+              <li class="active">Galeri</li>
+            </ol>
+            <h1>Galeri</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Filter -->
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <ul class="nav nav-pills" id="filters">
+        <li class="active"><a href="#" data-filter="*">Hepsi</a></li>
+        <li><a href="#" data-filter=".villa">Villa</a></li>
+        <li><a href="#" data-filter=".blog">Blog</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery -->
+<section id="gallery" class="mt50">
+  <div class="container">
+    <div class="row gallery">
+        <?php
+
+            foreach($Resim as $resim){
+
+                echo '
+                    <div class="col-sm-3 '.$resim["resim"]->type.' fadeIn appear">
+                        <a href="'.$resim['resim']->src.'" title="'.$resim['resim']->title.'" alt="'.$resim['resim']->alt.'" data-rel="prettyPhoto[gallery1]">
+                            <img src="'.$resim['resim']->src.'" title="'.$resim['resim']->title.'" alt="'.$resim['resim']->alt.'" class="img-responsive zoom-img" />
+                            <i class="fa fa-search"></i>
+                        </a>
+                    </div>
+                ';
+
+            }
+
+        ?>
+    </div>
+  </div>
+</section>
+
+<!-- Call To Action -->
+<section id="call-to-action" class="mt100">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-sm-8 col-xs-12">
+        <h2>This is a Call to Action that you can use for all purposes!</h2>
+      </div>
+      <div class="col-md-4 col-sm-4 col-xs-12">
+        <a href="elements.html" class="btn btn-default btn-lg pull-right">More features</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<?php require_once "Modules/villa/layouts/footer.html"; ?>
+
+</body>
+</html>
