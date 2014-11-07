@@ -105,29 +105,24 @@ $(function(){
             //this.emit("addedfile", { name: "Filename", size: 12345 });
             //this.emit("addedfile", { name: "Filename2", size: 12345 });
             this.on("complete", function(file) {
-                //console.info(file);
+                //console.log(file);
                 //console.log(this);
-                //this.fileByte = eval("("+this.files[0].xhr.responseText+")");
-                //this.fileByte = this.files;
+                this.fileByte = eval("("+this.files[0].xhr.responseText+")");
+                //console.log(this.files);
                 // Capture the Dropzone instance as closure.
                 var _this = this;
                 // The Villa checking registered
                 VillaKaydet({
                     succes: function(VillaID, Objects){
                         // Image will be registered to database with the Villa ID after check the Villa has been registered to database.
-                        /*$(Objects._this.fileByte).each(function(i,v){
-                            var $_FILE = eval("("+v.xhr.responseText+")");
-                        });*/
-                        var $_FILE = eval("("+Objects.file.xhr.responseText+")");
-                        console.info($_FILE);
-
-                        $.post("addGallery", {villa_id: VillaID, file_name: $_FILE.fileName/*Objects.file.name*/}, function(e){
+                        console.log(v.xhr.responseText);
+                        $.post("addGallery", {villa_id: VillaID, file_name: _this.fileByte.fileName/*Objects.file.name*/}, function(e){
                             var dataJSON = eval(e);
                             // if the Villa has been registered
                             if(dataJSON.response){
                                 // Create the remove button
                                 var removeButton = Dropzone.createElement("<button class='red'>Resmi Sil</button>");
-                                removeButton.setAttribute("data-content","{'villa_id':'"+VillaID+"','id':'"+dataJSON.insert_id+"','name':'"+$_FILE.fileName+"'}");
+                                removeButton.setAttribute("data-content","{'villa_id':'"+VillaID+"','id':'"+dataJSON.insert_id+"'}");
                                 // Listen to the click event
                                 removeButton.addEventListener("click", function(e) {
                                     // Make sure the button click doesn't submit the form:
@@ -142,7 +137,7 @@ $(function(){
                                     // If you want to the delete the file on the server as well,
                                     // you can do the AJAX request here.
                                     // Deleting image from database.
-                                    $.post("removeGallery", {villa_id: deleteDATA.villa_id, gallery_id: deleteDATA.id, file_name: $_FILE.fileName}, function(e){
+                                    $.post("removeGallery", {villa_id: deleteDATA.villa_id, gallery_id: deleteDATA.id, file_name: Objects._this.fileByte.fileName}, function(e){
                                         var dataJSON = eval("("+e+")");
                                         // if image has been deleted from database
                                         if(dataJSON.response){

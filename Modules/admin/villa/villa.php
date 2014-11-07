@@ -221,9 +221,9 @@ class villa extends Module {
         $InsertQuery = "/ref_id::".Request::post("villa_id").";;src::".$StorePath.Request::post("file_name");
         $InsertQuery .= ";;alt::".$Villa->name.";;title::".$Villa->name.";;type::villa";
 
-        if($Villa->thumbnail==""||empty($Villa->thumbnail)||strlen($Villa->thumbnail)<=0){
+        if($Villa->thumbnail==""||$Villa->thumbnail==null||empty($Villa->thumbnail)||strlen($Villa->thumbnail)<=0){
 
-            $this->MySQL->update("/villa/thumbnail::".$StorePath.Request::post("file_name"))->where("/id:=:".$Villa->id);
+            $this->MySQL->update("/villa/thumbnail::".$StorePath.Request::post("file_name"))->where("/id:=:".Request::post("villa_id"))->execute();
 
         }
 
