@@ -95,6 +95,12 @@ class MySQL {
 
     }
 
+    public function delete($Path){
+
+        return new Delete($this->Conn, $Path);
+
+    }
+
     /**
      * @param $CharSet: MySQL Connection´s OutPut Character Coding ex: utf8
      */
@@ -464,6 +470,18 @@ class SqlMaker{
             }
 
             $this->LastSqlSet["QueryString"] .= rtrim($Columns, ", ")." ";
+
+        }
+
+        if($this->QueryType==4){
+
+            $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
+
+            $this->Path = null;
+
+            $Target = $Path[0];
+
+            $this->LastSqlSet["QueryString"] = "DELETE FROM ".$Target." ";
 
         }
 
@@ -1321,6 +1339,133 @@ class Update{
         $this->Conn = $Conn;
 
         $this->SqlMaker = new SqlMaker(ltrim($Path, "[/\#\$\:]"), MySQL::UPDATE);
+
+        $this->QueryString = $this->SqlMaker->SqlSet()["QueryString"];
+
+        $this->QueryValues = $this->SqlMaker->SqlSet()["QueryValues"];
+
+        return $this;
+
+    }
+
+    public function where($Path){
+
+        $this->SqlMaker->add($Path, MySQL::WHERE, true);
+
+        $this->QueryString .= $this->SqlMaker->SqlSet()["QueryString"];
+
+        $this->QueryValues = array_merge($this->QueryValues, $this->SqlMaker->SqlSet()["QueryValues"]);
+
+        return $this;
+
+    }
+
+    /**
+     * @param array $Settings
+     * @param bool $ReturnFetch
+     * @return $this|bool
+     */
+    public function execute(Array $Settings = null, $ReturnFetch = false){
+
+        $Settings["return"] = (@$Settings["return"]) ? @$Settings["return"] : MySQL::FETCH_OBJ;
+
+        $Settings["fetch"] = (@$Settings["fetch"]) ? strtolower(@$Settings["fetch"]) : "all";
+
+        try{
+
+            $this->LastQuery = $this->Conn->prepare($this->QueryString, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+
+            $Execute = $this->LastQuery->execute($this->QueryValues);
+
+            if($this->LastQuery->errorCode()!="00000"){
+
+                throw new \PDOException;
+
+            }
+
+            return $Execute;
+
+            /*$Selected = $this->LastQuery;
+
+            if($ReturnFetch){
+
+                $this->LastFetch = ($Settings["fetch"]=="first") ? $this->LastQuery->fetch($Settings["return"]) : $this->LastQuery->fetchAll($Settings["return"]);
+
+                return $this->LastFetch;
+
+            }
+
+            return new Selected($this->Conn, $Selected->fetchAll(MySQL::FETCH_OBJ));*/
+
+        }catch (\PDOException $Error){
+
+            $this->ErrorHandler = new MySQLErrorHandler($Error);
+
+            $this->Status = false;
+
+            return $this;
+
+        }
+
+        return $this;
+
+    }
+
+    public function insertId($Object = null){
+
+        return $this->Conn->lastInsertId(null);
+
+    }
+
+    public function Status($Obj = null){
+
+        return $this->Status;
+
+    }
+
+    /*public function LastFetch($Obj = null){
+
+        return $this->LastFetch;
+
+    }*/
+
+    public function QueryString($Obj = null){
+
+        return $this->QueryString;
+
+    }
+
+    public function QueryValues($Obj = null){
+
+        return $this->QueryValues;
+
+    }
+
+    public function ErrorHandler($Obj = null){
+
+        return $this->ErrorHandler;
+
+    }
+
+}
+
+class Delete{
+
+    private $Conn;
+    private $SqlMaker;
+    private $Status;
+    private $QueryString;
+    private $QueryValues = array();
+    private $LastSql = array();
+    private $LastQuery;
+    #private $LastFetch;
+    private $ErrorHandler;
+
+    public function __construct(\PDO $Conn, $Path){
+
+        $this->Conn = $Conn;
+
+        $this->SqlMaker = new SqlMaker(ltrim($Path, "[/\#\$\:]"), MySQL::DELETE);
 
         $this->QueryString = $this->SqlMaker->SqlSet()["QueryString"];
 

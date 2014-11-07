@@ -53,7 +53,7 @@
                             echo '<td class="center">
                                 <button style="'.$Active.'" class="green villa-active"><span class="icon icon-s icon-eye-open"></span> Yayınla</button>
                                 <button style="'.$Deactive.'" class="blue villa-deactive"><span class="icon icon-s icon-eye-close"></span> Yayından Kaldır</button>
-                                <button class="orange villa-duzenle"><span class="icon icon-s icon-edit"></span> Düzenle</button>
+                                <button onclick="location.href=\'form?id='.$Villa->id.'\';" class="orange villa-duzenle"><span class="icon icon-s icon-edit"></span> Düzenle</button>
                                 <button class="red villa-sil"><span class="icon icon-s icon-trash"></span> Sil</button>
                             </td>';
                             echo '</tr>';

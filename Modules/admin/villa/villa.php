@@ -55,9 +55,28 @@ class villa extends Module {
 
         $Villa = $this->MySQL->select("/villa:*")->where("/id:=:".Request::get("id"))->asc("id")->execute(["fetch" => "first"], true);
 
+        $VillaGallery = $this->MySQL->select("/resimler:*")->where("/ref_id:=:".Request::get("id").";&&;type:=:villa")->execute(["fetch" => "all"], true);
+
+        $GalleryElements = null;
+
+        if(count($VillaGallery)>=1){
+
+            $GalleryElements .= '<style type="text/css">.dz-default.dz-message{z-index: -1;}</style>';
+
+        }
+
+        foreach ($VillaGallery as $Gallery) {
+
+            $GParse = explode("/", $Gallery->src);
+
+            $GalleryElements .= '<div class="dz-preview dz-processing dz-image-preview dz-success">  <div class="dz-details">    <div class="dz-filename"><span data-dz-name="">'.$GParse[count($GParse)-1].'</span></div>    <div style="display: none;" class="dz-size" data-dz-size=""><strong>11</strong> KiB</div>    <img data-dz-thumbnail="" alt="'.$GParse[count($GParse)-1].'" title="'.$GParse[count($GParse)-1].'" src="../../villa/index/'.$Gallery->src.'">  </div>  <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress="" style="width: 100%;"></span></div>  <div class="dz-success-mark"><span>✔</span></div>  <div class="dz-error-mark"><span>✘</span></div>  <div class="dz-error-message"><span data-dz-errormessage=""></span></div><button class="red resim-sil" data-content="{\'villa_id\':\''.Request::get("id").'\',\'id\':\''.$Gallery->id.'\'}">Resmi Sil</button></div>';
+
+        }
+
         $this->data = array(
             "VillaID" => Request::get("id"),
-            "Villa" => $Villa
+            "Villa" => $Villa,
+            "GalleryElements" => $GalleryElements
         );
 
         return $this->render();
@@ -140,12 +159,6 @@ class villa extends Module {
         $QueryString = "/villa/";
 
         foreach ($_DATAS as $col => $val) {
-
-            if(empty($val)||$val==null||strlen($val)<=0||$val=="id"){
-
-                continue;
-
-            }
 
             $QueryString .= "{$col}::{$val};;";
 
@@ -230,7 +243,15 @@ class villa extends Module {
 
     public function removeGallery(){
 
-        exit(json_encode(array("response" => true)));
+        $StoreFolder = 'Modules/villa/index/_assets/images/gallery/';
+
+        $Delete = $this->MySQL->delete("/resimler")->where("/id:=:".Request::post("gallery_id").";&&;ref_id:=:".Request::post("villa_id").";&&;type:=:villa");
+
+        $RemoveStored = unlink($StoreFolder.Request::post("file_name"));
+
+        Libraries\Response::header("json");
+
+        Libraries\Response::json(array("response" => $Delete->execute(), "remove_stored" => $RemoveStored));
 
     }
 
@@ -298,7 +319,17 @@ class villa extends Module {
 
     public function VillaGallery(){
 
-        Libraries\Response::header("js");
+        $Gallery = $this->MySQL->select("/resimler:*")->where("ref_id:=:".Request::get("id")."&&type:=:villa");
+
+        /*foreach($Gallery as $Gall){
+
+
+
+        }*/
+
+        Libraries\Response::header("javascript");
+
+        //echo 'var GalleryImages = array();';
 
     }
 

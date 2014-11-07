@@ -32,7 +32,9 @@
             </div>
         </div>
         <div class="box g16">
-            <form class="dropzone" id="GalleryUploader" action="uploadGallery" method="post" enctype="multipart/form-data"></form>
+            <form class="dropzone" id="GalleryUploader" action="uploadGallery" method="post" enctype="multipart/form-data">
+                <?=$GalleryElements;?>
+            </form>
         </div>
     </div>
 
@@ -41,7 +43,7 @@
             <div class="header">
                 İşlemler
                 <div class="buttons right">
-                    <button style="border-radius: 3px 3px 3px 3px !important;" class="green kaydet"><span class="icon icon-ok icon-s no-mg"></span> &nbsp; Kaydet</button>
+                    <button style="border-radius: 3px 3px 3px 3px !important;" class="blue kaydet"><span class="icon icon-ok icon-s no-mg"></span> &nbsp; Kaydet</button>
                 </div>
             </div>
             <div class="content rows-pad-m form big-label label-pad-m">
@@ -68,8 +70,8 @@
                     ?>
                     <label>Durumu</label>
                     <div class="buttons btn-radio">
-                        <button name="durumu" value="1" class="<?=$Active[1];?>"><span class="icon icon-eye-open"></span>Aktif</button>
-                        <button name="durumu" value="0" class="<?=$Active[0];?>"><span class="icon icon-eye-close"></span>Deaktif</button>
+                        <button name="active" value="1" class="<?=$Active[1];?> green"><span class="icon icon-eye-open"></span>Aktif</button>
+                        <button name="active" value="0" class="<?=$Active[0];?> red"><span class="icon icon-eye-close"></span>Deaktif</button>
                     </div>
                 </div>
             </div>

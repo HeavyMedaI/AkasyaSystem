@@ -47,7 +47,7 @@ var VillaKaydet = function(o, f){
         CallerIconClasses = Caller.find(".icon").attr("class");
         Caller.attr("disabled","disabled").find(".icon").removeAttr("class").attr("class","icon icon-circleselection spinning icon-s no-mg");
     }
-    var Data = $("input[type='text'], input[type='hidden'], input[type='checkbox']:checked, select, textarea").serialize();
+    var Data = $("input[type='text'], input[type='hidden'], input[type='checkbox']:checked, select, textarea").serialize() + "&active=" + $("button[name='active'].pressed").attr("value");
     console.info(Data);
     $.post("set", Data, function(e){
         var dataJSON = eval(e);
@@ -101,8 +101,9 @@ $(function(){
         paramName: "file", // The name that will be used to transfer the file
         maxFilesize: 4, // MB
         init: function() {
-            var mockFile = { name: "Filename", size: 12345 };
-            this.emit("addedfile", mockFile);
+            //var mockFile = { name: "Filename", size: 12345 };
+            //this.emit("addedfile", { name: "Filename", size: 12345 });
+            //this.emit("addedfile", { name: "Filename2", size: 12345 });
             this.on("complete", function(file) {
                 this.fileByte = eval("("+this.files[0].xhr.responseText+")");
                 // Capture the Dropzone instance as closure.
@@ -132,11 +133,11 @@ $(function(){
                                     // If you want to the delete the file on the server as well,
                                     // you can do the AJAX request here.
                                     // Deleting image from database.
-                                    $.post("removeGallery", {villa_id: deleteDATA.villa_id, gallery_id: deleteDATA.id, file_name: Objects.file.name}, function(e){
+                                    $.post("removeGallery", {villa_id: deleteDATA.villa_id, gallery_id: deleteDATA.id, file_name: Objects._this.fileByte.fileName}, function(e){
                                         var dataJSON = eval("("+e+")");
                                         // if image has been deleted from database
                                         if(dataJSON.response){
-                                           App(".ust-kutu .bildirim-alani").notif({
+                                            App(".ust-kutu .bildirim-alani").notif({
                                                 "message": {
                                                     "header": "Silme işlemi başarılı.",
                                                     "subtext": "Resim silindi."
@@ -183,5 +184,45 @@ $(function(){
             });
         }
     };
+    $(".resim-sil").click(function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var Object = $(this).parent();
+        var FileName = Object.find(".dz-details").find(".dz-filename").find("span").text();
+        var Caller = $(this);
+        var iconClass = $(this).attr("class");
+        var deleteDATA = eval("("+$(this).data("content")+")");
+        $(Object).remove();
+        $.post("removeGallery", {villa_id: deleteDATA.villa_id, gallery_id: deleteDATA.id, file_name: FileName}, function(e){
+            var dataJSON = eval(e);
+            // if image has been deleted from database
+            if(dataJSON.response){
+                App(".ust-kutu .bildirim-alani").notif({
+                    "message": {
+                        "header": "Silme işlemi başarılı.",
+                        "subtext": "Resim silindi."
+                    },
+                    "icon": {
+                        "icon": "ok-sign",
+                        "color": "green",
+                        "size": null
+                    }
+                });
+            }else{
+                App(".ust-kutu .bildirim-alani").notif({
+                    "message": {
+                        "header": "Hata: Silme işlemi başarısız.",
+                        "subtext": dataJSON.message
+                    },
+                    "icon": {
+                        "icon": "lightningalt glow",
+                        "color": "red",
+                        "size": null
+                    }
+                });
+            }
+        });
+
+    });
     /*App(".ust-kutu .bildirim-alani").notif();*/
 });
