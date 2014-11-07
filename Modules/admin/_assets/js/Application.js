@@ -38,7 +38,7 @@ var Application = function(e){
 
                     BildirimAlani.find(".notif").removeClass("hide");
 
-                    return CallBack(Settings.callBy);
+                    return CallBack(Settings.caller);
 
                 }, 700);
 

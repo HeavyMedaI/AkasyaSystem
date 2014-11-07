@@ -40,9 +40,15 @@ var VillaListener = function(){
 var VillaKaydet = function(o, f){
     var Object = o || {};
     var Functions = f || {};
-    var This = $(this);
-    $(this).attr("disabled","disabled").find(".icon").removeClass("icon-ok").addClass("icon-circleselection spinning");
-    var Data = $("input[type='text'], input[type='hidden'], input[type='checkbox']:checked, select").serialize();
+    var Caller = false;
+    var CallerIconClasses = false;
+    if(Object.Caller){
+        Caller = Object.Caller
+        CallerIconClasses = Caller.find(".icon").attr("class");
+        Caller.attr("disabled","disabled").find(".icon").removeAttr("class").attr("class","icon icon-circleselection spinning icon-s no-mg");
+    }
+    var Data = $("input[type='text'], input[type='hidden'], input[type='checkbox']:checked, select, textarea").serialize();
+    console.info(Data);
     $.post("set", Data, function(e){
         var dataJSON = eval(e);
         if(dataJSON.response){
@@ -56,11 +62,14 @@ var VillaKaydet = function(o, f){
                     "color": "green",
                     "size": null
                 },
-                "callBy": This,
-                "callback": function(This){
+                "caller": {"Caller": Caller, "iconClass": CallerIconClasses},
+                "callback": function(caller){
                     var VillaID = dataJSON.insert_id;
                     $("input[type='hidden'][name='id'].villaId").val(VillaID);
-                    This.removeAttr("disabled").find(".icon").removeClass("icon-circleselection spinning").addClass("icon-ok");
+                    if(caller.Caller!=false){
+                        caller.Caller.removeAttr("disabled").find(".icon").removeAttr("class").attr("class", caller.iconClass);
+                    }
+                    //callBy.removeAttr("disabled").find(".icon").removeClass("icon-circleselection spinning").addClass("icon-ok");
                     if(Object.succes){Object.succes(VillaID, Functions);}
                 }
             });
@@ -75,9 +84,12 @@ var VillaKaydet = function(o, f){
                     "color": "red",
                     "size": null
                 },
-                "callBy": This,
-                "callback": function(This){
-                    This.removeAttr("disabled").find(".icon").removeClass("icon-circleselection spinning").addClass("icon-ok");
+                "caller": {"Caller": Caller, "iconClass": CallerIconClasses},
+                "callback": function(caller){
+                    if(caller.Caller!=false){
+                        caller.Caller.removeAttr("disabled").find(".icon").removeAttr("class").attr("class", caller.iconClass);
+                    }
+                    //callBy.removeAttr("disabled").find(".icon").removeClass("icon-circleselection spinning").addClass("icon-ok");
                 }
             });
         }
@@ -89,23 +101,28 @@ $(function(){
         paramName: "file", // The name that will be used to transfer the file
         maxFilesize: 4, // MB
         init: function() {
+            var mockFile = { name: "Filename", size: 12345 };
+            this.emit("addedfile", mockFile);
             this.on("complete", function(file) {
+                this.fileByte = eval("("+this.files[0].xhr.responseText+")");
                 // Capture the Dropzone instance as closure.
                 var _this = this;
                 // The Villa checking registered
                 VillaKaydet({
                     succes: function(VillaID, Objects){
                         // Image will be registered to database with the Villa ID after check the Villa has been registered to database.
-                        $.post("addGallery", {villa_id: VillaID, file_name: Objects.file.name}, function(e){
-                            var dataJSON = eval("("+e+")");
+                        $.post("addGallery", {villa_id: VillaID, file_name: _this.fileByte.fileName/*Objects.file.name*/}, function(e){
+                            var dataJSON = eval(e);
                             // if the Villa has been registered
                             if(dataJSON.response){
                                 // Create the remove button
                                 var removeButton = Dropzone.createElement("<button class='red'>Resmi Sil</button>");
-                                removeButton.setAttribute("data-content","{'villa_id':'"+VillaID+"'}");
+                                removeButton.setAttribute("data-content","{'villa_id':'"+VillaID+"','id':'"+dataJSON.insert_id+"'}");
                                 // Listen to the click event
                                 removeButton.addEventListener("click", function(e) {
                                     // Make sure the button click doesn't submit the form:
+                                    var Caller = $(this);
+                                    var iconClass = $(this).attr("class");
                                     e.preventDefault();
                                     e.stopPropagation();
                                     // Getting the Villa ID in data attr of delete button
@@ -115,11 +132,11 @@ $(function(){
                                     // If you want to the delete the file on the server as well,
                                     // you can do the AJAX request here.
                                     // Deleting image from database.
-                                    $.post("removeGallery", {villa_id: deleteDATA.villa_id, file_name: Objects.file.name}, function(e){
+                                    $.post("removeGallery", {villa_id: deleteDATA.villa_id, gallery_id: deleteDATA.id, file_name: Objects.file.name}, function(e){
                                         var dataJSON = eval("("+e+")");
                                         // if image has been deleted from database
                                         if(dataJSON.response){
-                                            App(".ust-kutu .bildirim-alani").notif({
+                                           App(".ust-kutu .bildirim-alani").notif({
                                                 "message": {
                                                     "header": "Silme işlemi başarılı.",
                                                     "subtext": "Resim silindi."
@@ -128,6 +145,12 @@ $(function(){
                                                     "icon": "ok-sign",
                                                     "color": "green",
                                                     "size": null
+                                                },
+                                                "caller": {"Caller": Caller, "iconClass": iconClass},
+                                                "callback": function(caller){
+                                                    if(caller){
+                                                        caller.Caller.removeAttr("disabled").find(".icon").removeAttr("class").attr("class", caller.iconClass);
+                                                    }
                                                 }
                                             });
                                         }else{
@@ -140,6 +163,12 @@ $(function(){
                                                     "icon": "lightningalt glow",
                                                     "color": "red",
                                                     "size": null
+                                                },
+                                                "caller": {"Caller": Caller, "iconClass": iconClass},
+                                                "callback": function(caller){
+                                                    if(caller){
+                                                        caller.Caller.removeAttr("disabled").find(".icon").removeAttr("class").attr("class", caller.iconClass);
+                                                    }
                                                 }
                                             });
                                         }

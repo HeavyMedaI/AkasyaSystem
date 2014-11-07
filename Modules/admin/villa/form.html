@@ -20,33 +20,19 @@
             <div class="content rows-pad-m form big-label label-pad-m">
                 <div class="row inp-cont">
                     <label>Villa Adı</label>
-                    <input name="name" type="text">
-                    <input class="villaId" name="id" type="hidden">
+                    <input name="name" value="<?=@$Villa->name;?>" type="text">
+                    <input class="villaId" value="<?=@$VillaID;?>" name="id" type="hidden">
                 </div>
             </div>
         </div>
         <div id="text-editor" class="box g16 inp-row2">
             <div class="header">Villa Açıklaması</div>
             <div class="content">
-                <textarea name="description" id="wysiwyg">
-                    The quick brown wizard jumps over the toxic brewing dog.<br><br>
-                    The web developer can't think of any content to fill this box.<br><br><br>
-                    Text align left
-                    <p style="text-align: center;">Text align center</p>
-                    <p style="text-align: right;">Text align right</p>
-                    <strong>Bold text</strong><br><br>
-                    <span style="font-style: italic;">Italic Text</span><br><br>
-                    <span style="text-decoration: underline;">Underlined text</span><br><br>
-                    <span style="text-decoration: line-through;">Strikethrough text</span>
-                </textarea>
+                <textarea name="description" id="wysiwyg"><?=@$Villa->description;?></textarea>
             </div>
         </div>
         <div class="box g16">
             <form class="dropzone" id="GalleryUploader" action="uploadGallery" method="post" enctype="multipart/form-data"></form>
-            <!--<form class="uploadGallery" action="uploadGallery" method="post" enctype="multipart/form-data"></form>-->
-            <!--<form method="post" enctype="multipart/form-data">
-                <input type="file" name="file" />
-            </form>-->
         </div>
     </div>
 
@@ -60,24 +46,30 @@
             </div>
             <div class="content rows-pad-m form big-label label-pad-m">
                 <div class="row inp-cont">
+                    <?php
+                      $YatakSayisi[@$Villa->yatak_sayisi] = 'selected="selected"';
+                    ?>
                     <label>Yatak Sayısı</label>
                     <select name="yatak_sayisi" class="required inset">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5+">5+</option>
+                        <option <?=@$YatakSayisi[1];?> value="1">1</option>
+                        <option <?=@$YatakSayisi[2];?> value="2">2</option>
+                        <option <?=@$YatakSayisi[3];?> value="3">3</option>
+                        <option <?=@$YatakSayisi[4];?> value="4">4</option>
+                        <option <?=@$YatakSayisi["5+"];?> value="5+">5+</option>
                     </select>
                 </div>
                 <div class="row inp-cont">
                     <label>Gecelik Fiyat</label>
-                    <input name="gecelik_fiyat" type="text" class="required g5 spinner number" placeholder="0.00">
+                    <input name="gecelik_fiyat" value="<?=@$Villa->gecelik_fiyat;?>" type="text" class="required g5 spinner number" placeholder="0.00">
                 </div>
                 <div class="row inp-cont">
+                    <?php
+                      $Active[@$Villa->active] = "pressed";
+                    ?>
                     <label>Durumu</label>
                     <div class="buttons btn-radio">
-                        <button name="durumu" value="1" class="pressed"><span class="icon icon-man-male"></span>Aktif</button>
-                        <button name="durumu" value="0"><span class="icon icon-woman-female"></span>Deaktif</button>
+                        <button name="durumu" value="1" class="<?=$Active[1];?>"><span class="icon icon-eye-open"></span>Aktif</button>
+                        <button name="durumu" value="0" class="<?=$Active[0];?>"><span class="icon icon-eye-close"></span>Deaktif</button>
                     </div>
                 </div>
             </div>
@@ -86,28 +78,46 @@
             <div class="header">Özellikler</div>
             <div class="content rows-pad-m form big-label label-pad-m">
                 <div class="row inp-cont">
+                    <?php
+                        $Wifi[@$Villa->wifi] = 'checked="checked"';
+                    ?>
                     <label>İnternet</label>
-                    <div class="ig4"><input name="wifi" value="1" type="checkbox" class="checkbox big" checked="checked"></div>
+                    <div class="ig4"><input name="wifi" value="1" type="checkbox" class="checkbox big" <?=$Wifi[1];?>></div>
                 </div>
                 <div class="row inp-cont">
+                    <?php
+                        $Havuz[@$Villa->havuz] = 'checked="checked"';
+                    ?>
                     <label>Havuz</label>
-                    <div class="ig4"><input name="havuz" value="1" type="checkbox" class="checkbox big"></div>
+                    <div class="ig4"><input name="havuz" value="1" type="checkbox" class="checkbox big" <?=$Havuz[1];?>></div>
                 </div>
                 <div class="row inp-cont">
+                    <?php
+                        $Uydu[@$Villa->uydu] = 'checked="checked"';
+                    ?>
                     <label>Uydu</label>
-                    <div class="ig4"><input name="uydu" value="1" type="checkbox" class="checkbox big" checked="checked"></div>
+                    <div class="ig4"><input name="uydu" value="1" type="checkbox" class="checkbox big" <?=$Uydu[1];?>></div>
                 </div>
                 <div class="row inp-cont">
+                    <?php
+                        $SicakSu[@$Villa->sicak_su] = 'checked="checked"';
+                    ?>
                     <label>7/24 Sıcak Su</label>
-                    <div class="ig4"><input name="sicak_su" value="1" type="checkbox" class="checkbox big" checked="checked"></div>
+                    <div class="ig4"><input name="sicak_su" value="1" type="checkbox" class="checkbox big" <?=$SicakSu[1];?>></div>
                 </div>
                 <div class="row inp-cont">
+                    <?php
+                        $LcdTv[@$Villa->lcd_tv] = 'checked="checked"';
+                    ?>
                     <label>LCD TV</label>
-                    <div class="ig4"><input name="lcd_tv" value="1" type="checkbox" class="checkbox big" checked="checked"></div>
+                    <div class="ig4"><input name="lcd_tv" value="1" type="checkbox" class="checkbox big" <?=$LcdTv[1];?>></div>
                 </div>
                 <div class="row inp-cont">
+                    <?php
+                        $Jakuzi[@$Villa->jakuzi] = 'checked="checked"';
+                    ?>
                     <label>Jakuzi</label>
-                    <div class="ig4"><input name="jakuzi" value="1" type="checkbox" class="checkbox big"></div>
+                    <div class="ig4"><input name="jakuzi" value="1" type="checkbox" class="checkbox big" <?=$Jakuzi[1];?>></div>
                 </div>
             </div>
         </div>
@@ -179,6 +189,7 @@
 
 <div id="load"><div id="spinner"></div></div>
 <?php require_once "Modules/admin/layouts/scripts.html"; ?>
+<script type="text/javascript" src="VillaGallery?id="<?=$VillaID;?>></script>
 <!---jQuery Code-->
 <script type="text/javascript">
 
@@ -199,7 +210,7 @@
         $('#intro').nanoScroller();
         $("#table").tablesorter();
         $(".kaydet").click(function(){
-            VillaKaydet();
+            VillaKaydet({"Caller":$(this)});
         });
     });
 

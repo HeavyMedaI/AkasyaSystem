@@ -89,6 +89,12 @@ class MySQL {
 
     }
 
+    public function update($Path){
+
+        return new Update($this->Conn, $Path);
+
+    }
+
     /**
      * @param $CharSet: MySQL Connection´s OutPut Character Coding ex: utf8
      */
@@ -143,9 +149,9 @@ class SqlMaker{
      */
     public function __construct($Path, $Type){
 
-        $this->LastQueryString = $Path;
+        $this->LastQueryString = ltrim($Path, "[/\#\$\:]");
 
-        $this->Path = $Path;
+        $this->Path = ltrim($Path, "[/\#\$\:]");
 
         $this->QueryType = $Type;
 
@@ -155,6 +161,7 @@ class SqlMaker{
             "|" => " OR ",
             "||" => " OR ",
             "<<" => " < ",
+            ">>" => " > "
         );
 
         $this->Blocks = array("{","(","[","]",")","}");
@@ -175,7 +182,57 @@ class SqlMaker{
 
     }
 
-    private  function StringSet($Path = null, $Set = true){
+    public function add($Path, $Type = null, $Set = false){
+
+        if($Type!=null){ $this->QueryType = $Type; }
+
+        if($this->QueryType == 2){
+
+            if(is_string($this->Path)){
+
+                $this->Path .= "/".ltrim($Path, "[/\#\$\:]");
+
+                return $this->StringSet();
+
+            }else if(is_array($Path)){
+
+                $this->Path = array_merge($this->Path, $Path);
+
+                return $this->ArraySet();
+
+            }
+
+        }
+
+        $this->LastQueryString = ltrim($Path, "[/\#\$\:]");
+
+        preg_match("/^;(&|&&|\||\|\|);(.*)$/i", ltrim($Path, "[/\#\$\:]"), $Split);
+
+        $Mark = "/";
+
+        if($this->Set&&$Set==false){
+
+            if(count($Split)>=1){
+
+                $Mark = ";{$Split[1]};";
+
+            }else{
+
+                $Mark = ";&&;";
+
+            }
+
+        }
+
+        $RunableString = preg_replace("/^;(&|&&|\||\|\|);/i", null, ltrim($Path, "[/\#\$\:]"));
+
+        $this->Path .= "{$Mark}{$RunableString}";
+
+        return $this->StringSet();
+
+    }
+
+    private  function StringSet($Path = null, $Set = false){
 
         $this->LastSqlSet["QueryString"] = null;
 
@@ -195,7 +252,7 @@ class SqlMaker{
 
         $Values = null;
 
-        if($this->QueryType==MySQL::SELECT){
+        if($this->QueryType==1){
 
             $Values = array();
 
@@ -219,11 +276,15 @@ class SqlMaker{
 
             $this->LastSqlSet["QueryString"] .=  "FROM ".$From[0]." ";
 
-            if((count($Path)==1||!isset($Path[1]))||(empty($Path[1])||strlen($Path[1])<=0)){
+            if(((count($Path)==1||!isset($Path[1]))||(empty($Path[1])||strlen($Path[1])<=0))&&$Set==false){
 
                 return $this;
 
             }
+
+            array_shift($Path);
+
+            $Path[1] = implode("/", $Path);
 
             #$PregSplitPattern = "/;([&]|[\|]);/i";
 
@@ -326,11 +387,11 @@ class SqlMaker{
 
             $this->LastSqlSet["QueryString"] .= $WHERE;
 
-            $this->LastSqlSet["QueryValues"] = $Values;
+            $this->LastSqlSet["QueryValues"] = array_merge($this->LastSqlSet["QueryValues"], $Values);
 
         }
 
-        if($this->QueryType==MySQL::INSERT){
+        if($this->QueryType==2){
 
             $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
 
@@ -344,7 +405,11 @@ class SqlMaker{
 
             }
 
-            $Packages = explode(";", $Path[1]);
+            array_shift($Path);
+
+            $Path[1] = implode("/", $Path);
+
+            $Packages = explode(";;", ltrim($Path[1], ";;"));
 
             foreach($Packages as $Package){
 
@@ -372,59 +437,152 @@ class SqlMaker{
 
         }
 
-        //$this->LastSqlSet["QueryString"] = "SELECT {$Columns} FROM `{$Table}` WHERE ".$Blocks;
+        if($this->QueryType==3){
 
-        return $this;
+            $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
 
-    }
+            $this->Path = null;
 
-    public function add($Path, $Type = null){
+            $Target = $Path[0];
 
-        if($Type!=null){ $this->QueryType = $Type; }
+            $this->LastSqlSet["QueryString"] = "UPDATE ".$Target." SET ";
 
-        if($this->QueryType == MySQL::INSERT){
+            array_shift($Path);
 
-            if(is_string($this->Path)){
+            $Path[1] = implode("/", $Path);
 
-                $this->Path .= "/".ltrim($Path, "[/\#\$\:]");
+            $Packages = explode(";;", ltrim($Path[1], ";;"));
 
-                return $this->StringSet();
+            foreach ($Packages as $Package) {
 
-            }else if(is_array($Path)){
+                $Set = explode("::", $Package);
 
-                $this->Path = array_merge($this->Path, $Path);
+                $Columns .= "`{$Set[0]}` = :{$Set[0]}, ";
 
-                return $this->ArraySet();
+                $this->LastSqlSet["QueryValues"][":".$Set[0]] = $Set[1];
 
             }
 
+            $this->LastSqlSet["QueryString"] .= rtrim($Columns, ", ")." ";
+
         }
 
-        $this->LastQueryString = ltrim($Path, "[/\#\$\:]");
+        if($this->QueryType==5){
 
-        preg_match("/^;(&|&&|\||\|\|);(.*)$/i", ltrim($Path, "[/\#\$\:]"), $Split);
+            $Values = array();
 
-        $Mark = "/";
+            $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
 
-        if($this->Set){
+            $this->Set = true;
 
-            if(count($Split)>=1){
+            $Blocks .= "( ";
 
-                $Mark = ";{$Split[1]};";
+            $String = preg_split("/;/i", $Path[0]);
+
+            for($i=0;$i<count($String);$i++){
+
+                if($i%2<=0){
+
+                    $Blocks .= "( ";
+
+                    $BlockSet = false;
+
+                    if(in_array(substr($String[$i], 0, 1), $this->Blocks)){
+
+                        $BlockSet = true;
+
+                        $Blocks .= "( ";
+
+                        $String[$i] = substr($String[$i], 1, (strlen($String[$i])-2));
+
+                    }
+
+                    $Ands = preg_split("/&&/i", $String[$i]);
+
+                    $BlockAnd = null;
+
+                    foreach($Ands as $And){
+
+                        if(strpos($And, "||")){
+
+                            $Ors = preg_split("/\|\|/i", $And);
+
+                            $BlockOr = null;
+
+                            foreach ($Ors as $Or) {
+
+                                $Where = $this->ColAndVal($Or, "string");
+
+                                $BlockOr .= $Where["string"]." OR ";
+
+                                $Values = array_merge($Values, $Where["value"]);
+
+                            }
+
+                            $BlockAnd .= rtrim($BlockOr, " OR ")." ";
+
+                        }else{
+
+                            $Where = $this->ColAndVal($And, "string");
+
+                            $BlockAnd .= $Where["string"]." AND ";
+
+                            $Values = array_merge($Values, $Where["value"]);
+
+                        }
+
+                    }
+
+                    $Blocks .= rtrim($BlockAnd, " AND ")." ";
+
+                    $Blocks .= ") ";
+
+                    /*
+                     * Don´t remove this is for blockset probabilites
+                     *
+                     * if(in_array(substr($String[$i], -1, 1), $this->Blocks)){
+
+                        $Blocks .= ") ";
+
+                    }
+                    */
+                    if($BlockSet){
+
+                        $Blocks .= ") ";
+
+                    }
+
+                }else{
+
+                    $Blocks .= @$this->Keywords[$String[$i]]." ";
+
+                }
+
+            }
+
+            $Blocks .= ") ";
+
+            $WHERE = null;
+
+            if(strpos($this->LastSqlSet["QueryString"], "WHERE")){
+
+                $WHERE = "AND ".$Blocks;
 
             }else{
 
-                $Mark = ";&&;";
+                $WHERE = "WHERE ".$Blocks;
 
             }
 
+            $this->LastSqlSet["QueryString"] .= $WHERE;
+
+            $this->LastSqlSet["QueryValues"] = array_merge($this->LastSqlSet["QueryValues"], $Values);
+
         }
 
-        $RunableString = preg_replace("/^;(&|&&|\||\|\|);/i", null, ltrim($Path, "[/\#\$\:]"));
+        //$this->LastSqlSet["QueryString"] = "SELECT {$Columns} FROM `{$Table}` WHERE ".$Blocks;
 
-        $this->Path .= "{$Mark}{$RunableString}";
-
-        return $this->StringSet();
+        return $this;
 
     }
 
@@ -1041,6 +1199,8 @@ class Insert{
 
         $this->QueryValues = $this->SqlMaker->SqlSet()["QueryValues"];
 
+        return $this;
+
     }
 
     public function data($Path){
@@ -1050,6 +1210,133 @@ class Insert{
         $this->QueryString = $this->SqlMaker->SqlSet()["QueryString"];
 
         $this->QueryValues = $this->SqlMaker->SqlSet()["QueryValues"];
+
+        return $this;
+
+    }
+
+    /**
+     * @param array $Settings
+     * @param bool $ReturnFetch
+     * @return $this|bool
+     */
+    public function execute(Array $Settings = null, $ReturnFetch = false){
+
+        $Settings["return"] = (@$Settings["return"]) ? @$Settings["return"] : MySQL::FETCH_OBJ;
+
+        $Settings["fetch"] = (@$Settings["fetch"]) ? strtolower(@$Settings["fetch"]) : "all";
+
+        try{
+
+            $this->LastQuery = $this->Conn->prepare($this->QueryString, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+
+            $Execute = $this->LastQuery->execute($this->QueryValues);
+
+            if($this->LastQuery->errorCode()!="00000"){
+
+                throw new \PDOException;
+
+            }
+
+            return $Execute;
+
+            /*$Selected = $this->LastQuery;
+
+            if($ReturnFetch){
+
+                $this->LastFetch = ($Settings["fetch"]=="first") ? $this->LastQuery->fetch($Settings["return"]) : $this->LastQuery->fetchAll($Settings["return"]);
+
+                return $this->LastFetch;
+
+            }
+
+            return new Selected($this->Conn, $Selected->fetchAll(MySQL::FETCH_OBJ));*/
+
+        }catch (\PDOException $Error){
+
+            $this->ErrorHandler = new MySQLErrorHandler($Error);
+
+            $this->Status = false;
+
+            return $this;
+
+        }
+
+        return $this;
+
+    }
+
+    public function insertId($Object = null){
+
+        return $this->Conn->lastInsertId(null);
+
+    }
+
+    public function Status($Obj = null){
+
+        return $this->Status;
+
+    }
+
+    /*public function LastFetch($Obj = null){
+
+        return $this->LastFetch;
+
+    }*/
+
+    public function QueryString($Obj = null){
+
+        return $this->QueryString;
+
+    }
+
+    public function QueryValues($Obj = null){
+
+        return $this->QueryValues;
+
+    }
+
+    public function ErrorHandler($Obj = null){
+
+        return $this->ErrorHandler;
+
+    }
+
+}
+
+class Update{
+
+    private $Conn;
+    private $SqlMaker;
+    private $Status;
+    private $QueryString;
+    private $QueryValues = array();
+    private $LastSql = array();
+    private $LastQuery;
+    #private $LastFetch;
+    private $ErrorHandler;
+
+    public function __construct(\PDO $Conn, $Path){
+
+        $this->Conn = $Conn;
+
+        $this->SqlMaker = new SqlMaker(ltrim($Path, "[/\#\$\:]"), MySQL::UPDATE);
+
+        $this->QueryString = $this->SqlMaker->SqlSet()["QueryString"];
+
+        $this->QueryValues = $this->SqlMaker->SqlSet()["QueryValues"];
+
+        return $this;
+
+    }
+
+    public function where($Path){
+
+        $this->SqlMaker->add($Path, MySQL::WHERE, true);
+
+        $this->QueryString .= $this->SqlMaker->SqlSet()["QueryString"];
+
+        $this->QueryValues = array_merge($this->QueryValues, $this->SqlMaker->SqlSet()["QueryValues"]);
 
         return $this;
 

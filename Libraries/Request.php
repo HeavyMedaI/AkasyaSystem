@@ -36,7 +36,7 @@ class Request {
 
     }
 
-    public static function isGet(){
+    public static function isGet($Index){
 
         if((isset($_GET[$Index])&&!empty($_GET[$Index]))&&($_GET[$Index]!=null&&strlen($_GET[$Index])>=1)){
 
@@ -66,7 +66,7 @@ class Request {
 
     }
 
-    public static function isPost(){
+    public static function isPost($Index){
 
         if((@isset($_POST[$Index])&&!empty(@$_POST[$Index]))&&(@$_POST[$Index]!=null&&strlen(@$_POST[$Index])>=1)){
 
@@ -96,7 +96,7 @@ class Request {
 
     }
 
-    public static function isFile(){
+    public static function isFile($Index){
 
         if((@isset($_FILES[$Index])&&!empty(@$_FILES[$Index]))&&(@$_FILES[$Index]!=null&&strlen(@$_FILES[$Index])>=1)){
 
