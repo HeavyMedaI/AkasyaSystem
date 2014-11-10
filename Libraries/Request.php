@@ -20,6 +20,8 @@ class Request {
 
     public static function get($Index=null){
 
+        $Index = ltrim($Index, "[/\#\$\;\:]");
+
         if($Index==null){
 
             return $_GET;
@@ -38,6 +40,8 @@ class Request {
 
     public static function isGet($Index){
 
+        $Index = ltrim($Index, "[/\#\$\;\:]");
+
         if((isset($_GET[$Index])&&!empty($_GET[$Index]))&&($_GET[$Index]!=null&&strlen($_GET[$Index])>=1)){
 
             return true;
@@ -49,6 +53,8 @@ class Request {
     }
 
     public static function post($Index=null){
+
+        $Index = ltrim($Index, "[/\#\$\;\:]");
 
         if($Index==null){
 
@@ -80,6 +86,8 @@ class Request {
 
     public static function file($Index=null){
 
+        $Index = ltrim($Index, "[/\#\$\;\:]");
+
         if($Index==null){
 
             return $_FILES;
@@ -97,6 +105,8 @@ class Request {
     }
 
     public static function isFile($Index){
+
+        $Index = ltrim($Index, "[/\#\$\;\:]");
 
         if((@isset($_FILES[$Index])&&!empty(@$_FILES[$Index]))&&(@$_FILES[$Index]!=null&&strlen(@$_FILES[$Index])>=1)){
 

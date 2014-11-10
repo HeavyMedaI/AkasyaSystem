@@ -101,6 +101,12 @@ class MySQL {
 
     }
 
+    public function switch($Path){
+
+        return new Switch($this->Conn, $Path);
+
+    }
+
     /**
      * @param $CharSet: MySQL Connection´s OutPut Character Coding ex: utf8
      */
@@ -207,6 +213,30 @@ class SqlMaker{
                 return $this->ArraySet();
 
             }
+
+        }
+
+        if($this->QueryType == 3){
+
+            if(is_string($this->Path)){
+
+                $this->Path .= "/".ltrim($Path, "[/\#\$\:]");
+
+                return $this->StringSet();
+
+            }else if(is_array($Path)){
+
+                $this->Path = array_merge($this->Path, $Path);
+
+                return $this->ArraySet();
+
+            }
+
+        }
+
+        if($this->QueryType == 5){
+
+            $this->Path = null;
 
         }
 
@@ -447,11 +477,17 @@ class SqlMaker{
 
             $Path = explode("/", ltrim($this->Path, "[/\#\$\:]"));
 
-            $this->Path = null;
+            #$this->Path = null;
 
             $Target = $Path[0];
 
             $this->LastSqlSet["QueryString"] = "UPDATE ".$Target." SET ";
+
+            if(((count($Path)==1||!isset($Path[1]))||(empty($Path[1])||strlen($Path[1])<=0))&&$Set==false){
+
+                return $this;
+
+            }
 
             array_shift($Path);
 
@@ -463,9 +499,11 @@ class SqlMaker{
 
                 $Set = explode("::", $Package);
 
-                $Columns .= "`{$Set[0]}` = :{$Set[0]}, ";
+                $VarKey = substr(md5(date("Y-m-d-H-i-s-").microtime().":".rand(9, 99999)), 3, 9);
 
-                $this->LastSqlSet["QueryValues"][":".$Set[0]] = $Set[1];
+                $Columns .= "`{$Set[0]}` = :{$Set[0]}_$VarKey, ";
+
+                $this->LastSqlSet["QueryValues"][":{$Set[0]}_{$VarKey}"] = $Set[1];
 
             }
 
@@ -486,6 +524,8 @@ class SqlMaker{
         }
 
         if($this->QueryType==5){
+
+            //exit(var_dump($this->Path));
 
             $Values = array();
 
@@ -1207,9 +1247,9 @@ class Insert{
     #private $LastFetch;
     private $ErrorHandler;
 
-    public function __construct(\PDO $Conn, $Path){
+    public function __construct(\PDO $Connection, $Path){
 
-        $this->Conn = $Conn;
+        $this->Conn = $Connection;
 
         $this->SqlMaker = new SqlMaker(ltrim($Path, "[/\#\$\:]"), MySQL::INSERT);
 
@@ -1334,11 +1374,23 @@ class Update{
     #private $LastFetch;
     private $ErrorHandler;
 
-    public function __construct(\PDO $Conn, $Path){
+    public function __construct(\PDO $Connection, $Path){
 
-        $this->Conn = $Conn;
+        $this->Conn = $Connection;
 
         $this->SqlMaker = new SqlMaker(ltrim($Path, "[/\#\$\:]"), MySQL::UPDATE);
+
+        $this->QueryString = $this->SqlMaker->SqlSet()["QueryString"];
+
+        $this->QueryValues = $this->SqlMaker->SqlSet()["QueryValues"];
+
+        return $this;
+
+    }
+
+    public function data($Path){
+
+        $this->SqlMaker->add($Path, MySQL::UPDATE);
 
         $this->QueryString = $this->SqlMaker->SqlSet()["QueryString"];
 
@@ -1461,9 +1513,9 @@ class Delete{
     #private $LastFetch;
     private $ErrorHandler;
 
-    public function __construct(\PDO $Conn, $Path){
+    public function __construct(\PDO $Connection, $Path){
 
-        $this->Conn = $Conn;
+        $this->Conn = $Connection;
 
         $this->SqlMaker = new SqlMaker(ltrim($Path, "[/\#\$\:]"), MySQL::DELETE);
 
@@ -1555,6 +1607,65 @@ class Delete{
         return $this->LastFetch;
 
     }*/
+
+    public function QueryString($Obj = null){
+
+        return $this->QueryString;
+
+    }
+
+    public function QueryValues($Obj = null){
+
+        return $this->QueryValues;
+
+    }
+
+    public function ErrorHandler($Obj = null){
+
+        return $this->ErrorHandler;
+
+    }
+
+}
+
+class hwitch{
+
+    private $Conn;
+    private $Path;
+    private $Poles;
+    private $SqlMaker;
+    private $Status;
+    private $QueryString;
+    private $QueryValues = array();
+    private $LastSql = array();
+    private $LastQuery;
+    #private $LastFetch;
+    private $ErrorHandler;
+
+    public function __construct($Connection, $Path) {
+
+        $this->Conn = $Connection;
+
+        $this->Path = $Path;
+
+        $this->Poles = array(
+            0=>"0",
+            1 =>"1"
+        );
+
+    }
+
+    public function Status($Obj = null){
+
+        return $this->Status;
+
+    }
+
+    public function poles($Path){
+
+        return $this->Poles = preg_split("/(|\/\:\;\,)/", $Path);
+
+    }
 
     public function QueryString($Obj = null){
 

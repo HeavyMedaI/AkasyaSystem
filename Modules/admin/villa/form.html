@@ -78,7 +78,7 @@
         </div>
         <div class="box g16">
             <div class="header">Özellikler</div>
-            <div class="content rows-pad-m form big-label label-pad-m">
+            <div class="content rows-pad-m form big-label label-pad-m app-loader">
                 <div class="row inp-cont">
                     <?php
                         $Wifi[@$Villa->wifi] = 'checked="checked"';
@@ -121,6 +121,13 @@
                     <label>Jakuzi</label>
                     <div class="ig4"><input name="jakuzi" value="1" type="checkbox" class="checkbox big" <?=$Jakuzi[1];?>></div>
                 </div>
+            </div>
+        </div>
+        <div id="intro-box" class="box g16 selecting-box">
+            <div class="header"><span class="accent grad2">Küçük Resim</span></div>
+            <div id="intro" class="content scroll ov-no select-thumb-list">
+                <!--<div class="loader"><span class="icon icon-l icon-circleselection spinning"></span></div>-->
+                <div class="scroll-cont"></div>
             </div>
         </div>
     </div>
@@ -214,6 +221,13 @@
         $(".kaydet").click(function(){
             VillaKaydet({"Caller":$(this)});
         });
+
+        App("#intro").loader(function(e){
+           SelectThumbnail(function(){
+               e.out();
+           });
+        });
+
     });
 
 </script>

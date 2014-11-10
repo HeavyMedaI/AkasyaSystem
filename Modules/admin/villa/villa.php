@@ -21,12 +21,7 @@ class villa extends Module {
     public function __construct()
     {
 
-        $this->MySQL = (new Engines\MySQL())->connect([
-            "host" => __MySQL_HOST__,
-            "database" => __MySQL_DB__,
-            "user" => __MySQL_USER__,
-            "password" => __MySQL_PASS__
-        ]);
+        $this->MySQL = (new Engines\MySQL())->connect();
 
         $this->MySQL->character("utf8");
 
@@ -69,7 +64,7 @@ class villa extends Module {
 
             $GParse = explode("/", $Gallery->src);
 
-            $GalleryElements .= '<div class="dz-preview dz-processing dz-image-preview dz-success">  <div class="dz-details">    <div class="dz-filename"><span data-dz-name="">'.$GParse[count($GParse)-1].'</span></div>    <div style="display: none;" class="dz-size" data-dz-size=""><strong>11</strong> KiB</div>    <img data-dz-thumbnail="" alt="'.$GParse[count($GParse)-1].'" title="'.$GParse[count($GParse)-1].'" src="../../villa/index/'.$Gallery->src.'">  </div>  <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress="" style="width: 100%;"></span></div>  <div class="dz-success-mark"><span>✔</span></div>  <div class="dz-error-mark"><span>✘</span></div>  <div class="dz-error-message"><span data-dz-errormessage=""></span></div><button class="red resim-sil" data-content="{\'villa_id\':\''.Request::get("id").'\',\'id\':\''.$Gallery->id.'\'}">Resmi Sil</button></div>';
+            $GalleryElements .= '<div class="dz-preview dz-processing dz-image-preview dz-success">  <div class="dz-details">    <div class="dz-filename"><span data-dz-name="">'.$GParse[count($GParse)-1].'</span></div>    <div style="display: none;" class="dz-size" data-dz-size=""><strong>11</strong> KiB</div>    <img data-dz-thumbnail="" alt="'.$GParse[count($GParse)-1].'" title="'.$GParse[count($GParse)-1].'" src="../../villa/index/'.$Gallery->src.'">  </div>  <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress="" style="width: 100%;"></span></div>  <div class="dz-success-mark"><span>✔</span></div>  <div class="dz-error-mark"><span>✘</span></div>  <div class="dz-error-message"><span data-dz-errormessage=""></span></div><button class="red resim-sil" data-content="{\'villa_id\':\''.Request::get("id").'\',\'id\':\''.$Gallery->id.'\'}"><span class="icon icon-s icon-trash"></span> Resmi Sil</button></div>';
 
         }
 
@@ -210,6 +205,14 @@ class villa extends Module {
 
     }
 
+    public function addThumbnail(){
+
+        //$Update = $this->MySQL->update("/villa")->data("/thumbnail::".Request::post("/thumbnail"))->where("/id:=:".Request::post('/villa_id'));
+
+        $Switch = $this->MySQL->switch("/resimler")->poles("0/1");  #->where("/ref_id:=:".Request::post("/villa_id"))
+
+    }
+
     public function addGallery(){
 
         $StorePath = '_assets/images/gallery/';
@@ -309,27 +312,21 @@ class villa extends Module {
 
     }
 
+    public function VillaGallery(){
+
+        $Gallery = $this->MySQL->select("/resimler:src,CASE rel WHEN 1 THEN 'true' WHEN 0 THEN 'false' END AS selected")->where("ref_id:=:".Request::post("villa_id")."&&type:=:villa")->execute(["fetch"=>"all"], true);
+
+        Libraries\Response::header("javascript");
+
+        Libraries\Response::json($Gallery);
+
+    }
+
     public function test(){
 
         $Insert = $this->MySQL->insert("/villa")->data("/name::Deneme Adı;;description::Deneme Açıklama")->execute();
 
         var_dump($Insert);
-
-    }
-
-    public function VillaGallery(){
-
-        $Gallery = $this->MySQL->select("/resimler:*")->where("ref_id:=:".Request::get("id")."&&type:=:villa");
-
-        /*foreach($Gallery as $Gall){
-
-
-
-        }*/
-
-        Libraries\Response::header("javascript");
-
-        //echo 'var GalleryImages = array();';
 
     }
 

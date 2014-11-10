@@ -1190,3 +1190,55 @@ table.tablesorter .headerSortDown:before {
 	#footer p { width: 100%; float: none; display: block; text-align: center; }
 	#footer a { width: 100px; float: none; clear: both; display: block; margin: 10px auto 0 auto; }
 }
+
+.selecting-box{
+    position: relative;
+}
+
+/*.loader{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #eeeeee;
+    opacity: 1;
+    text-align: center;
+}
+
+.loader > .icon{
+    position: relative;
+    top: 46%;
+    left: 47%;
+    font-size: 2.7em !important;
+}*/
+
+.select-thumb-list{
+    position: relative !important;
+    /*max-height: 200px;
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 10px !important;*/
+}
+.select-thumb{
+    float: left;
+    width: 70px;
+    height: 70px;
+    margin: 10px;
+    border: 1px solid #bbbbbb;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.select-thumb:hover{
+    background-color: #4b96cf !important;
+}
+.select-thumb.selected{
+    background-color: #4b96cf !important;
+}
+.select-thumb img{
+    width: 85%;
+    height: 85%;
+    margin: 7.5%;
+}

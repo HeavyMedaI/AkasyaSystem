@@ -94,12 +94,72 @@ var VillaKaydet = function(o, f){
             });
         }
     });
-}
+};
+var SelectThumbnail = function(f){
 
+    var CallBack = f || function(){};
+
+    var Element = $(".select-thumb-list").find(".scroll-cont");
+
+    var VillaID = $("input[type='hidden'][name='id']").val();
+
+    if(VillaID!=null&&VillaID!=false&&VillaID.length>=1){
+
+        $.post("VillaGallery", {villa_id: VillaID}, function(e){
+
+            if(e.length>=1){
+                $(e).each(function(i,v){
+                    var Child = $("<div/>",{class: "select-thumb"})
+                        .data("content","{'src':'"+v.src+"'}")
+                        .append('<img src="../../villa/index/'+v.src+'">')
+                        .appendTo(Element)
+                        .click(function(){
+                            var _selected = $(this);
+                            var Data = eval("("+$(this).data("content")+")");
+                            $.post("addThumbnail", {villa_id: VillaID, thumbnail: Data.src}, function(e){
+                                var dataJSON = eval(e);
+                                if(dataJSON.response){
+                                    if($(".select-thumb").hasClass("selected")){
+                                        $(".select-thumb.selected").removeClass("selected", function(){
+                                            _selected.addClass("selected");
+                                        });
+                                    }
+                                    _selected.addClass("selected");
+                                }
+                            });
+                        });
+                    if(v.selected=='true'){
+                        Child.addClass("selected");
+                    }
+
+
+                });
+            }else{
+                $("<span/>")
+                    .attr("style","text-align: center; font-wight: 700;")
+                    .text("Hiç resim bulunamadı!")
+                    .appendTo(Element);
+            }
+
+        });
+
+    }else{
+
+        $("<span/>")
+            .attr("style","position: absolute; top: 45%; left: 21%;text-align: center; font-wight: bold; font-size: 1.4em;")
+            .text("Önce villayı kaydediniz!")
+            .appendTo(Element);
+
+    }
+
+    CallBack();
+
+}
 $(function(){
     Dropzone.options.GalleryUploader = {
         paramName: "file", // The name that will be used to transfer the file
         maxFilesize: 4, // MB
+        clickable: true,
         init: function() {
             //var mockFile = { name: "Filename", size: 12345 };
             //this.emit("addedfile", { name: "Filename", size: 12345 });
@@ -126,7 +186,7 @@ $(function(){
                             // if the Villa has been registered
                             if(dataJSON.response){
                                 // Create the remove button
-                                var removeButton = Dropzone.createElement("<button class='red'>Resmi Sil</button>");
+                                var removeButton = Dropzone.createElement("<button class='red'><span class='icon icon-s icon-trash'></span> Resmi Sil</button>");
                                 removeButton.setAttribute("data-content","{'villa_id':'"+VillaID+"','id':'"+dataJSON.insert_id+"','name':'"+$_FILE.fileName+"'}");
                                 // Listen to the click event
                                 removeButton.addEventListener("click", function(e) {
